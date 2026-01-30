@@ -11,13 +11,15 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-firebase.auth().onAuthStateChanged(user => {
-  if (user) {
-    console.log("Logged in as:", user.uid);
-  } else {
-    console.log("NOT logged in");
-  }
-});
+// 1️⃣ Initialize Firebase
+firebase.initializeApp(config);
+
+// 2️⃣ Sign in
+await firebase.auth().signInAnonymously();
+
+// 3️⃣ THEN access Firestore
+firebase.firestore().collection("...");
+
 
 <style>
   body{font-family:'Segoe UI',sans-serif;background:#cce7ff;margin:0;padding:0;color:#333;}
@@ -394,6 +396,7 @@ window.onload = function(){
 </script>
 </body>
 </html>
+
 
 
 
