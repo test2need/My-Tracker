@@ -8,6 +8,20 @@
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
+
+
+const auth = firebase.auth();
+
+auth.signInAnonymously()
+  .catch(err => console.error("Auth failed", err));
+
+  firebase.appCheck().activate(
+  '[,s'AW0u'=G8L1UJjSX}mD@X',
+  true // auto refresh
+);
+
 
 <style>
   body{font-family:'Segoe UI',sans-serif;background:#cce7ff;margin:0;padding:0;color:#333;}
@@ -384,4 +398,5 @@ window.onload = function(){
 </script>
 </body>
 </html>
+
 
