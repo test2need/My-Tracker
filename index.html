@@ -11,7 +11,13 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-
+firebase.auth().onAuthStateChanged(user => {
+  if (user) {
+    console.log("Logged in as:", user.uid);
+  } else {
+    console.log("NOT logged in");
+  }
+});
 
 <style>
   body{font-family:'Segoe UI',sans-serif;background:#cce7ff;margin:0;padding:0;color:#333;}
@@ -388,6 +394,7 @@ window.onload = function(){
 </script>
 </body>
 </html>
+
 
 
 
