@@ -12,25 +12,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
 
-// 1️⃣ Initialize Firebase FIRST
-firebase.initializeApp(firebaseConfig);
-
-// 2️⃣ Activate App Check SECOND
-// firebase.appCheck().activate(
- // 'YOUR_REAL_RECAPTCHA_SITE_KEY',
-//  true // auto refresh tokens
-);
-
-// 3️⃣ Initialize Auth THIRD
-const auth = firebase.auth();
-
-// 4️⃣ Sign in anonymously
-auth.signInAnonymously()
-  .catch(err => console.error("Auth failed", err));
-
-// 5️⃣ Now safe to use Firestore
-const db = firebase.firestore();
-
 
 <style>
   body{font-family:'Segoe UI',sans-serif;background:#cce7ff;margin:0;padding:0;color:#333;}
@@ -407,6 +388,7 @@ window.onload = function(){
 </script>
 </body>
 </html>
+
 
 
 
