@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V5 </title>
+<title>Murtaza's Tracker V6 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -446,39 +446,24 @@ function importTasks(event){
   reader.readAsText(file);
 }
 
-/* ------------- Flash due tasks (today or older) --------------- */
+/* ------------- Highlight due tasks --------------- */
 function flashDueTasks(){
-
   const todayStr = new Date().toISOString().split('T')[0];
 
-  const tables = [
-    'pendingTable',
-    'wipTable',
-    'fupTable',
-    'personalTable'
-  ];
-
-  tables.forEach(tableId => {
-
-    const table = document.getElementById(tableId);
-    if(!table) return;
-
-    table.querySelectorAll('tbody tr').forEach(row => {
+  ['pendingTable','wipTable','fupTable','personalTable'].forEach(id=>{
+    document.querySelectorAll(`#${id} tbody tr`).forEach(row=>{
 
       const targetInput = row.cells[3]?.querySelector('input[type="date"]');
 
       if(!targetInput) return;
 
-      const targetDate = targetInput.value;
-
-      if(targetDate && targetDate <= todayStr){
-        targetInput.classList.add('due-date-flash');
+      if(targetInput.value && targetInput.value <= todayStr){
+        targetInput.classList.add('due-date-due');
       }else{
-        targetInput.classList.remove('due-date-flash');
+        targetInput.classList.remove('due-date-due');
       }
 
     });
-
   });
 }
 
