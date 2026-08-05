@@ -438,7 +438,7 @@ function importTasks(event){
 /* ------------- Flash due tasks (today or older) --------------- */
 function flashDueTasks(){
   const todayStr = new Date().toISOString().split('T')[0];
-  ['pendingTable','wipTable','fupTable','personalTable'].forEach(id=>{
+  ['pendingTable','wipTable','fupTable'].forEach(id=>{
     document.querySelectorAll(`#${id} tbody tr`).forEach(row=>{
       const targetInput = row.cells[3]?.querySelector('input');
       if(!targetInput){ row.classList.remove('due-flash'); return; }
