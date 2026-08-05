@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V1 </title>
+<title>Murtaza's Tracker V2 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -59,14 +59,25 @@
     background-color:#d0ebff;
   }
 
-  .due-flash td{
-    animation:flashRed 1s infinite !important;
+  /* Due-date warning */
+.due-date-flash{
+  animation: dueDateFlash 1s infinite !important;
+  background-color:#ff6666 !important;
+  color:#000 !important;
+  font-weight:bold !important;
+}
+
+@keyframes dueDateFlash{
+  0%{
+    background-color:#ff6666 !important;
   }
-  @keyframes flashRed{
-	0%{background-color:#ffcccc !important;}
-	50%{background-color:#f9f9f9 !important;}
-	100%{background-color:#ffcccc !important;}
-	}
+  50%{
+    background-color:#ffffff !important;
+  }
+  100%{
+    background-color:#ff6666 !important;
+  }
+}
   /* Slightly reduced row height to make rows compact */
   td, th { padding:6px 8px; }
   /* ================================
@@ -451,16 +462,41 @@ function importTasks(event){
 
 /* ------------- Flash due tasks (today or older) --------------- */
 function flashDueTasks(){
+
   const todayStr = new Date().toISOString().split('T')[0];
-  ['pendingTable','wipTable','fupTable'].forEach(id=>{
-    document.querySelectorAll(`#${id} tbody tr`).forEach(row=>{
-      const targetInput = row.cells[3]?.querySelector('input');
-      if(!targetInput){ row.classList.remove('due-flash'); return; }
-      row.classList.toggle('due-flash', targetInput.value <= todayStr);
+
+  const tables = [
+    'pendingTable',
+    'wipTable',
+    'fupTable',
+    'personalTable'
+  ];
+
+  tables.forEach(tableId => {
+
+    const table = document.getElementById(tableId);
+    if(!table) return;
+
+    table.querySelectorAll('tbody tr').forEach(row => {
+
+      const targetInput = row.cells[3]?.querySelector('input[type="date"]');
+
+      if(!targetInput) return;
+
+      const targetDate = targetInput.value;
+
+      if(targetDate && targetDate <= todayStr){
+        targetInput.classList.add('due-date-flash');
+      }else{
+        targetInput.classList.remove('due-date-flash');
+      }
+
     });
+
   });
 }
 
+/* Run immediately after rendering and check every second */
 flashDueTasks();
 setInterval(flashDueTasks, 15000);
 
