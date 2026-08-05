@@ -3,14 +3,11 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker </title>
+<title>Murtaza's Tracker (Firebase)</title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
 
 <style>
   body{font-family:'Segoe UI',sans-serif;background:#cce7ff;margin:0;padding:0;color:#333;}
@@ -45,16 +42,81 @@
   #completedTable tbody tr:nth-child(odd){background-color:#e0e0e0;}
   #holdTable tbody tr:nth-child(even){background-color:#f9e6ff;}
   #holdTable tbody tr:nth-child(odd){background-color:#e6ccf2;}
+  #personalTable tbody tr:nth-child(even){background-color:#fff8d6;}
+  #personalTable tbody tr:nth-child(odd){background-color:#fff1b8;}
+  #personalTable thead th{background-color:#ffefb0;color:#8a6d00;}
   #pendingTable thead th{background-color:#ccefcf;color:#007B00;}
   #wipTable thead th{background-color:#ffe6cc;color:#cc6600;}
   #fupTable thead th{background-color:#cce0ff;color:#0047b3;}
   #completedTable thead th{background-color:#e6e6e6;color:#666666;}
   #holdTable thead th{background-color:#f2d9ff;color:#800080;}
-  #pendingTable tbody tr:hover,#wipTable tbody tr:hover,#fupTable tbody tr:hover,#completedTable tbody tr:hover,#holdTable tbody tr:hover{background-color:#d0ebff;}
+  #pendingTable tbody tr:hover,#wipTable tbody tr:hover,#fupTable tbody tr:hover,#personalTable tbody tr:hover,#completedTable tbody tr:hover,#holdTable tbody tr:hover
   .due-flash{animation:flashRed 1s infinite;}
   @keyframes flashRed{0%{background-color:#ffcccc;}50%{background-color:#f9f9f9;}100%{background-color:#ffcccc;}}
   /* Slightly reduced row height to make rows compact */
   td, th { padding:6px 8px; }
+  /* ================================
+   LIGHT THEMES
+   ================================ */
+
+body.theme-mint{background:#e8f7f0;}
+body.theme-mint .topbar{background:#d8f3e7;border-bottom-color:#43a97b;}
+body.theme-mint h2{color:#2e8b68;}
+body.theme-mint h3{background:#e1f4eb;color:#2e8b68;}
+
+body.theme-lavender{background:#f0ebfa;}
+body.theme-lavender .topbar{background:#e7def7;border-bottom-color:#8e6bbf;}
+body.theme-lavender h2{color:#7652a8;}
+body.theme-lavender h3{background:#eee7f9;color:#7652a8;}
+
+body.theme-peach{background:#fff0e6;}
+body.theme-peach .topbar{background:#ffe4d1;border-bottom-color:#e88b5a;}
+body.theme-peach h2{color:#d66b35;}
+body.theme-peach h3{background:#ffeadc;color:#d66b35;}
+
+body.theme-sky{background:#eaf6ff;}
+body.theme-sky .topbar{background:#d9efff;border-bottom-color:#5aa9df;}
+body.theme-sky h2{color:#3788bd;}
+body.theme-sky h3{background:#e1f2fc;color:#3788bd;}
+
+body.theme-cream{background:#fffbea;}
+body.theme-cream .topbar{background:#fff4c9;border-bottom-color:#d5b94b;}
+body.theme-cream h2{color:#a88b20;}
+body.theme-cream h3{background:#fff5d6;color:#a88b20;}
+
+body.theme-rose{background:#fff0f4;}
+body.theme-rose .topbar{background:#ffe0e9;border-bottom-color:#d97892;}
+body.theme-rose h2{color:#bd5c78;}
+body.theme-rose h3{background:#ffe8ee;color:#bd5c78;}
+
+body.theme-aqua{background:#e7f8f8;}
+body.theme-aqua .topbar{background:#d5f0f0;border-bottom-color:#49a6a6;}
+body.theme-aqua h2{color:#318888;}
+body.theme-aqua h3{background:#def3f3;color:#318888;}
+
+body.theme-lemon{background:#f9fbe8;}
+body.theme-lemon .topbar{background:#f1f5c9;border-bottom-color:#aab63d;}
+body.theme-lemon h2{color:#7f8c20;}
+body.theme-lemon h3{background:#f4f7d7;color:#7f8c20;}
+
+body.theme-sand{background:#f8f1e5;}
+body.theme-sand .topbar{background:#eee1c9;border-bottom-color:#b89562;}
+body.theme-sand h2{color:#8f7148;}
+body.theme-sand h3{background:#f3e8d4;color:#8f7148;}
+
+body.theme-slate{background:#eef1f3;}
+body.theme-slate .topbar{background:#dfe4e8;border-bottom-color:#7b8791;}
+body.theme-slate h2{color:#5f6c75;}
+body.theme-slate h3{background:#e5e9ec;color:#5f6c75;}
+
+#themeSelector{
+  padding:4px 7px;
+  border-radius:6px;
+  border:1px solid #ccc;
+  background:white;
+  cursor:pointer;
+}
+  
 </style>
 </head>
 <body>
@@ -78,6 +140,21 @@
     </div>
     <div class="topbar-right">
       <input type="text" id="searchInput" placeholder="Search tasks..." oninput="searchTasks()">
+
+      <select id="themeSelector" onchange="changeTheme(this.value)">
+        <option value="default">🔵 Blue</option>
+        <option value="mint">🌿 Mint</option>
+        <option value="lavender">💜 Lavender</option>
+        <option value="peach">🍑 Peach</option>
+        <option value="sky">☁️ Sky</option>
+        <option value="cream">🌼 Cream</option>
+        <option value="rose">🌸 Rose</option>
+        <option value="aqua">💧 Aqua</option>
+        <option value="lemon">🍋 Lemon</option>
+        <option value="sand">🏖️ Sand</option>
+        <option value="slate">🩶 Soft Gray</option>
+      </select>
+
       <button onclick="logout()">Logout</button>
     </div>
   </div>
@@ -95,6 +172,7 @@
             <option value="WIP">WIP</option>
             <option value="FUP">FUP</option>
             <option value="Hold">Hold</option>
+			<option value="Personal">Personal</option>
           </select>
         </td>
         <td><input type="date" id="newTarget" required></td>
@@ -119,6 +197,12 @@
 
   <div class="section"><h3>🔵 FUP</h3>
     <table id="fupTable"><thead><tr>
+      <th>Date & Day</th><th>Description</th><th>Status</th><th>Target Date</th><th>Comments</th><th>Actions</th>
+    </tr></thead><tbody></tbody></table>
+  </div>
+
+  <div class="section"><h3>🟡 Personal</h3>
+    <table id="personalTable"><thead><tr>
       <th>Date & Day</th><th>Description</th><th>Status</th><th>Target Date</th><th>Comments</th><th>Actions</th>
     </tr></thead><tbody></tbody></table>
   </div>
@@ -167,7 +251,7 @@ const tasksCollection = db.collection("tasks");
 /* -------- Real-time listener: re-render on any change -------- */
 tasksCollection.onSnapshot((snapshot) => {
   // clear tables
-  ['pendingTable','wipTable','fupTable','completedTable','holdTable'].forEach(id=>{
+  ['pendingTable','wipTable','fupTable','personalTable','completedTable','holdTable'].forEach(id=>{
     document.querySelector(`#${id} tbody`).innerHTML = '';
   });
 
@@ -231,7 +315,7 @@ function addNewTask(){
 
 /* ------------- Render Task Row --------------- */
 function addTaskToTable(task){
-  const tableMap={'Pending':'pendingTable','WIP':'wipTable','FUP':'fupTable','Completed':'completedTable','Hold':'holdTable'};
+  const tableMap={'Pending':'pendingTable','WIP':'wipTable','FUP':'fupTable','Personal':'personalTable','Completed':'completedTable','Hold':'holdTable'};
   const tableBody=document.querySelector(`#${tableMap[task.status]} tbody`);
   if(!tableBody) return;
   const row = tableBody.insertRow();
@@ -245,6 +329,7 @@ function addTaskToTable(task){
         <option ${task.status==='WIP'?'selected':''}>WIP</option>
         <option ${task.status==='FUP'?'selected':''}>FUP</option>
         <option ${task.status==='Hold'?'selected':''}>Hold</option>
+		<option ${task.status==='Personal'?'selected':''}>Personal</option>
         <option ${task.status==='Completed'?'selected':''}>Completed</option>
       </select>
     </td>
@@ -302,7 +387,7 @@ function clearAll(){
     snapshot.forEach(doc => batch.delete(doc.ref));
     return batch.commit();
   }).then(()=>{
-    ['pendingTable','wipTable','fupTable','completedTable','holdTable'].forEach(id=>document.querySelector(`#${id} tbody`).innerHTML='');
+    ['pendingTable','wipTable','fupTable','personalTable','completedTable','holdTable'].forEach(id=>document.querySelector(`#${id} tbody`).innerHTML='');
     alert('✅ All tasks cleared!');
   }).catch(err=>alert('Clear failed: ' + err));
 }
@@ -310,7 +395,7 @@ function clearAll(){
 /* ------------- Search --------------- */
 function searchTasks(){
   const term = document.getElementById('searchInput').value.toLowerCase();
-  ['pendingTable','wipTable','fupTable','completedTable','holdTable'].forEach(id=>{
+  ['pendingTable','wipTable','fupTable','personalTable','completedTable','holdTable'].forEach(id=>{
     document.querySelectorAll(`#${id} tbody tr`).forEach(row=>{
       const text = Array.from(row.querySelectorAll('input,select')).map(e=>String(e.value).toLowerCase()).join(' ');
       row.style.display = text.includes(term) ? '' : 'none';
@@ -353,7 +438,7 @@ function importTasks(event){
 /* ------------- Flash due tasks (today or older) --------------- */
 function flashDueTasks(){
   const todayStr = new Date().toISOString().split('T')[0];
-  ['pendingTable','wipTable','fupTable'].forEach(id=>{
+  ['pendingTable','wipTable','fupTable','personalTable'].forEach(id=>{
     document.querySelectorAll(`#${id} tbody tr`).forEach(row=>{
       const targetInput = row.cells[3]?.querySelector('input');
       if(!targetInput){ row.classList.remove('due-flash'); return; }
@@ -376,8 +461,33 @@ setInterval(updateDateTime,1000);
 updateDateTime();
 
 /* ------------- Init --------------- */
-window.onload = function(){
+/* ------------- Themes --------------- */
+function changeTheme(theme){
+  document.body.className = '';
+  
+  if(theme !== 'default'){
+    document.body.classList.add('theme-' + theme);
+  }
+
+  localStorage.setItem('trackerTheme', theme);
+}
+
+function loadTheme(){
+  const savedTheme = localStorage.getItem('trackerTheme') || 'default';
+  const selector = document.getElementById('themeSelector');
+
+  if(selector){
+    selector.value = savedTheme;
+  }
+
+  if(savedTheme !== 'default'){
+    document.body.classList.add('theme-' + savedTheme);
+  }
+}
+
+wwindow.onload = function(){
   document.getElementById('newDate').value = new Date().toISOString().split('T')[0];
+  loadTheme();
   // small visual cloud sync indicator toggler (optional)
   setInterval(()=> {
     const el = document.getElementById('cloudSyncStatus');
@@ -387,10 +497,4 @@ window.onload = function(){
 </script>
 </body>
 </html>
-
-
-
-
-
-
 
