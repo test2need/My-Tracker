@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V10 </title>
+<title>Murtaza's Tracker V1.6 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -392,14 +392,14 @@ function addNewTask(){
   const desc=document.getElementById('newDesc').value.trim();
   const status=document.getElementById('newStatus').value || 'Pending';
   const target=document.getElementById('newTarget').value;
-  const comments=document.getElementById('newComments').value;
+  const comments=document.getElementById('newComments').dataset.fullcomment || '';
   if(!desc){alert('Description is mandatory'); return;}
   if(!target){alert('Target Date is mandatory'); return;}
   const task={date,description:desc,status,target,comments};
   tasksCollection.add(task)
     .then(()=> {
       // clear inputs - snapshot will re-render table
-      document.getElementById('newDesc').value=''; document.getElementById('newTarget').value=''; document.getElementById('newComments').value=''; document.getElementById('newDate').value=getTodayStr(); document.getElementById('newStatus').value='Pending';
+      document.getElementById('newDesc').value=''; document.getElementById('newTarget').value=''; document.getElementById('newComments').value=''; document.getElementById('newComments').dataset.fullcomment=''; document.getElementById('newDate').value=getTodayStr(); document.getElementById('newStatus').value='Pending';
       document.getElementById('exportImportMsg').textContent = '✅ Task added & synced';
       setTimeout(()=>document.getElementById('exportImportMsg').textContent = '', 2000);
     })
@@ -427,7 +427,7 @@ function addTaskToTable(task){
       </select>
     </td>
     <td><input type="date" value="${task.target || ''}" required></td>
-    <td><input type="text" class="commentField" readonly value="${escapeHtml(task.comments || '')}" onclick="openCommentModal(this)"></td>
+    <td><input type="text" class="commentField" readonly value="${escapeHtml(previewComment(task.comments))}" data-fullcomment="${escapeHtml(task.comments || '')}" onclick="openCommentModal(this)"></td>
     <td class="action-btns"><button onclick="deleteTask(this)">❌</button></td>
   `;
 
@@ -442,12 +442,19 @@ function escapeHtml(s){
   return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 }
 
+/* Flatten multi-line comment into a single-line preview for the small table cell.
+   (Single-line <input> elements strip newlines from their .value entirely on set,
+   so the full text is never kept there - only in the data-fullcomment attribute.) */
+function previewComment(s){
+  return String(s || '').replace(/\r?\n+/g, ' ').trim();
+}
+
 /* ------------- Comment full-page editor --------------- */
 let activeCommentInput = null;
 
 function openCommentModal(inputEl){
   activeCommentInput = inputEl;
-  document.getElementById('commentModalTextarea').value = inputEl.value;
+  document.getElementById('commentModalTextarea').value = inputEl.dataset.fullcomment || '';
   document.getElementById('commentModalOverlay').classList.add('active');
   setTimeout(()=>document.getElementById('commentModalTextarea').focus(), 0);
 }
@@ -455,8 +462,9 @@ function openCommentModal(inputEl){
 function closeCommentModal(){
   if(activeCommentInput){
     const newVal = document.getElementById('commentModalTextarea').value;
-    if(newVal !== activeCommentInput.value){
-      activeCommentInput.value = newVal;
+    if(newVal !== (activeCommentInput.dataset.fullcomment || '')){
+      activeCommentInput.dataset.fullcomment = newVal;
+      activeCommentInput.value = previewComment(newVal);
       const row = activeCommentInput.closest('tr');
       // Only push to Firestore for existing tasks (rows with a doc id),
       // not the "Enter Task" row's newComments field.
@@ -486,7 +494,7 @@ function updateTask(row){
     description: inputs[1].value,
     status: inputs[2].value,
     target: inputs[3].value,
-    comments: inputs[4].value
+    comments: (inputs[4].dataset.fullcomment !== undefined) ? inputs[4].dataset.fullcomment : inputs[4].value
   };
   tasksCollection.doc(id).update(payload).catch(err=>console.error('Update failed', err));
 }
