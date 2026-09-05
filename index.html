@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V8 </title>
+<title>Murtaza's Tracker V9 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <style>
   body{font-family:'Segoe UI',sans-serif;background:#cce7ff;margin:0;padding:0;color:#333;}
@@ -147,7 +148,7 @@ body.theme-slate h3{background:#e5e9ec;color:#5f6c75;}
 <!-- LOGIN SCREEN -->
 <div id="loginScreen" class="container">
   <h2>🔐 Murtaza's Tracker Login</h2>
-  <p><input type="text" id="username" placeholder="Username" style="width:100%"></p>
+  <p><input type="email" id="username" placeholder="Email" style="width:100%"></p>
   <p><input type="password" id="password" placeholder="Password" style="width:100%"></p>
   <p id="loginMsg" style="color:red;text-align:center;"></p>
   <p style="text-align:center;"><button onclick="handleLogin()">Login</button></p>
@@ -278,49 +279,77 @@ const firebaseConfig = {
 /* Initialize Firebase (compat) */
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const auth = firebase.auth();
 const tasksCollection = db.collection("tasks");
 
-/* -------- Real-time listener: re-render on any change -------- */
-tasksCollection.onSnapshot((snapshot) => {
-  // clear tables
-  ['pendingTable','wipTable','fupTable','personalTable','completedTable','holdTable'].forEach(id=>{
-    document.querySelector(`#${id} tbody`).innerHTML = '';
+/* -------- Real-time listener: only attach once signed in -------- */
+let unsubscribeTasks = null;
+
+function startTasksListener(){
+  if(unsubscribeTasks) return; // already listening
+  unsubscribeTasks = tasksCollection.onSnapshot((snapshot) => {
+    // clear tables
+    ['pendingTable','wipTable','fupTable','personalTable','completedTable','holdTable'].forEach(id=>{
+      document.querySelector(`#${id} tbody`).innerHTML = '';
+    });
+
+    // add each doc to appropriate table
+    snapshot.forEach(doc => {
+      const task = { id: doc.id, ...doc.data() };
+      addTaskToTable(task);
+    });
+
+    flashDueTasks();
+    document.getElementById("cloudSyncStatus").textContent = "☁️ Synced with Cloud";
+    // clear message after 3s
+    setTimeout(()=>{ document.getElementById("cloudSyncStatus").textContent = ""; }, 3000);
+  }, (err) => {
+    console.error('Firestore listener error', err);
   });
+}
 
-  // add each doc to appropriate table
-  snapshot.forEach(doc => {
-    const task = { id: doc.id, ...doc.data() };
-    addTaskToTable(task);
-  });
+function stopTasksListener(){
+  if(unsubscribeTasks){ unsubscribeTasks(); unsubscribeTasks = null; }
+}
 
-  flashDueTasks();
-  document.getElementById("cloudSyncStatus").textContent = "☁️ Synced with Cloud";
-  // clear message after 3s
-  setTimeout(()=>{ document.getElementById("cloudSyncStatus").textContent = ""; }, 3000);
-});
-
-/* ------------- Login (local cred) --------------- */
+/* ------------- Login (Firebase Auth) --------------- */
 document.getElementById("password").addEventListener("keypress",function(e){if(e.key==="Enter") handleLogin();});
+
 function handleLogin(){
-  const user=document.getElementById('username').value.trim(), pass=document.getElementById('password').value.trim();
-  const savedUser=localStorage.getItem('loginUser'), savedPass=localStorage.getItem('loginPass');
-  if(!user||!pass){document.getElementById('loginMsg').textContent='Enter username and password.'; return;}
-  if(!savedUser&&!savedPass){localStorage.setItem('loginUser',user); localStorage.setItem('loginPass',pass); document.getElementById('loginMsg').style.color='green'; document.getElementById('loginMsg').textContent='Login created!'; showApp(); return;}
-  if(user===savedUser&&pass===savedPass){showApp();} else{document.getElementById('loginMsg').textContent='Invalid username or password.';}
+  const email=document.getElementById('username').value.trim();
+  const pass=document.getElementById('password').value.trim();
+  document.getElementById('loginMsg').style.color='red';
+  if(!email||!pass){document.getElementById('loginMsg').textContent='Enter email and password.'; return;}
+  auth.signInWithEmailAndPassword(email, pass)
+    .catch(err => {
+      document.getElementById('loginMsg').textContent = 'Invalid email or password.';
+      console.error('Login failed', err);
+    });
+  // On success, onAuthStateChanged (below) handles showing the app.
 }
+
 function forgotPassword(){
-  const savedUser = localStorage.getItem('loginUser');
-  const savedPass = localStorage.getItem('loginPass');
-  if(!savedUser||!savedPass){alert('No login exists yet. Please create your login.'); return;}
-  const enteredUser = prompt('Enter your username to reset password:');
-  if(enteredUser !== savedUser){alert('Username does not match!'); return;}
-  const newPass = prompt('Enter new password:');
-  if(!newPass){alert('Password cannot be empty!'); return;}
-  localStorage.setItem('loginPass', newPass);
-  alert('✅ Password reset successful!');
+  const email = document.getElementById('username').value.trim();
+  if(!email){ alert('Enter your email above first, then click "Forgot password?" again.'); return; }
+  auth.sendPasswordResetEmail(email)
+    .then(()=> alert('✅ Password reset email sent to ' + email))
+    .catch(err => alert('Error sending reset email: ' + err.message));
 }
-function showApp(){loginScreen.classList.add('hidden'); taskApp.classList.remove('hidden'); /* tasks auto-loaded via onSnapshot */ }
-function logout(){taskApp.classList.add('hidden'); loginScreen.classList.remove('hidden'); password.value='';}
+
+function showApp(){loginScreen.classList.add('hidden'); taskApp.classList.remove('hidden'); startTasksListener(); }
+function logout(){ auth.signOut(); }
+
+/* Central auth-state gate: this is what actually shows/hides the app */
+auth.onAuthStateChanged((user) => {
+  if(user){
+    showApp();
+  } else {
+    stopTasksListener();
+    taskApp.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
+    document.getElementById('password').value='';
+  }
+});
 
 /* ------------- Utilities --------------- */
 function getTodayStr(){const today=new Date(); return today.getFullYear()+'-'+String(today.getMonth()+1).padStart(2,'0')+'-'+String(today.getDate()).padStart(2,'0');}
