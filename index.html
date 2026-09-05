@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V7 </title>
+<title>Murtaza's Tracker V8 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -24,6 +24,14 @@
   td:nth-child(2), td:nth-child(5){width:45%;}
   td input[type="text"]{width:100%;box-sizing:border-box;}
   .hidden{display:none;}
+  input[type="text"].commentField{cursor:pointer;background:#fafcff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #commentModalOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;}
+  #commentModalOverlay.active{display:flex;}
+  #commentModalBox{background:#fff;width:90%;max-width:900px;height:80%;border-radius:10px;box-shadow:0 5px 25px rgba(0,0,0,0.3);display:flex;flex-direction:column;padding:15px 20px;box-sizing:border-box;}
+  #commentModalBox h3{margin:0 0 10px 0;background:none;padding:0;}
+  #commentModalTextarea{flex:1;width:100%;resize:none;font-size:15px;box-sizing:border-box;height:100%;}
+  #commentModalClose{align-self:flex-end;margin-bottom:8px;background:#dc3545;}
+  #commentModalClose:hover{background:#a71d2a;}
   .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:#cce7ff;z-index:100;padding:8px 12px;border-bottom:2px solid #007BFF;}
   .topbar-left{flex:1;text-align:center;}
   .topbar-right{display:flex;align-items:center;gap:6px;}
@@ -61,7 +69,7 @@
 
   /* Due-date warning */
 .due-date-due{
-  animation: dueFlash 5s infinite !important;
+  animation: dueFlash 1s infinite !important;
 }
 @keyframes dueFlash{
   0%, 100% { background-color:#ffb3b3; }
@@ -191,7 +199,7 @@ body.theme-slate h3{background:#e5e9ec;color:#5f6c75;}
           </select>
         </td>
         <td><input type="date" id="newTarget" required></td>
-        <td><input type="text" id="newComments" placeholder="Comments"></td>
+        <td><input type="text" id="newComments" class="commentField" readonly placeholder="Comments" onclick="openCommentModal(this)"></td>
         <td><button onclick="addNewTask()">Add Task</button></td>
       </tr>
     </tbody></table>
@@ -241,6 +249,15 @@ body.theme-slate h3{background:#e5e9ec;color:#5f6c75;}
     <button onclick="document.getElementById('importFile').click()">📂 Import Tasks</button>
     <p id="exportImportMsg"></p>
     <p id="cloudSyncStatus"></p>
+  </div>
+</div>
+
+<!-- Full-page comment editor -->
+<div id="commentModalOverlay" onclick="if(event.target===this) closeCommentModal();">
+  <div id="commentModalBox">
+    <button id="commentModalClose" onclick="closeCommentModal()">✖ Close</button>
+    <h3>📝 Edit Comment</h3>
+    <textarea id="commentModalTextarea"></textarea>
   </div>
 </div>
 
@@ -349,7 +366,7 @@ function addTaskToTable(task){
       </select>
     </td>
     <td><input type="date" value="${task.target || ''}" required></td>
-    <td><input type="text" value="${escapeHtml(task.comments || '')}"></td>
+    <td><input type="text" class="commentField" readonly value="${escapeHtml(task.comments || '')}" onclick="openCommentModal(this)"></td>
     <td class="action-btns"><button onclick="deleteTask(this)">❌</button></td>
   `;
 
@@ -363,6 +380,40 @@ function addTaskToTable(task){
 function escapeHtml(s){
   return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
 }
+
+/* ------------- Comment full-page editor --------------- */
+let activeCommentInput = null;
+
+function openCommentModal(inputEl){
+  activeCommentInput = inputEl;
+  document.getElementById('commentModalTextarea').value = inputEl.value;
+  document.getElementById('commentModalOverlay').classList.add('active');
+  setTimeout(()=>document.getElementById('commentModalTextarea').focus(), 0);
+}
+
+function closeCommentModal(){
+  if(activeCommentInput){
+    const newVal = document.getElementById('commentModalTextarea').value;
+    if(newVal !== activeCommentInput.value){
+      activeCommentInput.value = newVal;
+      const row = activeCommentInput.closest('tr');
+      // Only push to Firestore for existing tasks (rows with a doc id),
+      // not the "Enter Task" row's newComments field.
+      if(row && row.dataset && row.dataset.id){
+        updateTask(row);
+      }
+    }
+  }
+  document.getElementById('commentModalOverlay').classList.remove('active');
+  activeCommentInput = null;
+}
+
+/* Close on Escape key (auto-saves same as clicking outside/close button) */
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && document.getElementById('commentModalOverlay').classList.contains('active')){
+    closeCommentModal();
+  }
+});
 
 /* ------------- Update Task --------------- */
 function updateTask(row){
