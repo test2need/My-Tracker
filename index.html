@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V9 </title>
+<title>Murtaza's Tracker V10 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -25,6 +25,10 @@
   td:nth-child(2), td:nth-child(5){width:45%;}
   td input[type="text"]{width:100%;box-sizing:border-box;}
   .hidden{display:none;}
+  .tableWrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .taskCount{font-size:1em;font-weight:normal;color:#666;}
+  #loadingIndicator{text-align:center;color:#007BFF;font-weight:bold;padding:20px;}
+  .emptyStateRow td{text-align:center;color:#999;font-style:italic;padding:10px;}
   input[type="text"].commentField{cursor:pointer;background:#fafcff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   #commentModalOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;}
   #commentModalOverlay.active{display:flex;}
@@ -69,12 +73,20 @@
   }
 
   /* Due-date warning */
-.due-date-due{
+.due-date-overdue{
   animation: dueFlash 1s infinite !important;
+}
+.due-date-today{
+  animation: dueFlashToday 1s infinite !important;
+  color:#fff !important;
 }
 @keyframes dueFlash{
   0%, 100% { background-color:#ffb3b3; }
   50% { background-color:#ffe0e0; }
+}
+@keyframes dueFlashToday{
+  0%, 100% { background-color:#4c9a4c; }
+  50% { background-color:#7fbf7f; }
 }
 
   /* Slightly reduced row height to make rows compact */
@@ -183,6 +195,8 @@ body.theme-slate h3{background:#e5e9ec;color:#5f6c75;}
     </div>
   </div>
 
+  <div id="loadingIndicator" class="hidden">⏳ Loading tasks...</div>
+
   <!-- ENTER TASK LINE -->
   <div class="section">
     <h3>➕ Enter Task</h3>
@@ -207,41 +221,42 @@ body.theme-slate h3{background:#e5e9ec;color:#5f6c75;}
   </div>
 
   <!-- TASK SECTIONS -->
-  <div class="section"><h3>🟢 Pending</h3>
-    <table id="pendingTable"><thead><tr>
+  <div class="section"><h3>🟢 Pending <span class="taskCount" id="pendingCount">(0)</span></h3>
+    <div class="tableWrapper"><table id="pendingTable"><thead><tr>
       <th>Date & Day</th><th>Description</th><th>Status</th><th>Target Date</th><th>Comments</th><th>Actions</th>
-    </tr></thead><tbody></tbody></table>
+    </tr></thead><tbody></tbody></table></div>
   </div>
 
-  <div class="section"><h3>🟠 WIP</h3>
-    <table id="wipTable"><thead><tr>
+  <div class="section"><h3>🟠 WIP <span class="taskCount" id="wipCount">(0)</span></h3>
+    <div class="tableWrapper"><table id="wipTable"><thead><tr>
       <th>Date & Day</th><th>Description</th><th>Status</th><th>Target Date</th><th>Comments</th><th>Actions</th>
-    </tr></thead><tbody></tbody></table>
+    </tr></thead><tbody></tbody></table></div>
   </div>
 
-  <div class="section"><h3>🔵 FUP</h3>
-    <table id="fupTable"><thead><tr>
+  <div class="section"><h3>🔵 FUP <span class="taskCount" id="fupCount">(0)</span></h3>
+    <div class="tableWrapper"><table id="fupTable"><thead><tr>
       <th>Date & Day</th><th>Description</th><th>Status</th><th>Target Date</th><th>Comments</th><th>Actions</th>
-    </tr></thead><tbody></tbody></table>
+    </tr></thead><tbody></tbody></table></div>
   </div>
 
-  <div class="section"><h3>🟡 Personal</h3>
-    <table id="personalTable"><thead><tr>
+  <div class="section"><h3>🟡 Personal <span class="taskCount" id="personalCount">(0)</span></h3>
+    <div class="tableWrapper"><table id="personalTable"><thead><tr>
       <th>Date & Day</th><th>Description</th><th>Status</th><th>Target Date</th><th>Comments</th><th>Actions</th>
-    </tr></thead><tbody></tbody></table>
+    </tr></thead><tbody></tbody></table></div>
   </div>
 
-  <div class="section"><h3>✅ Completed</h3>
-    <table id="completedTable"><thead><tr>
+  <div class="section"><h3>✅ Completed <span class="taskCount" id="completedCount">(0)</span></h3>
+    <div class="tableWrapper"><table id="completedTable"><thead><tr>
       <th>Date & Day</th><th>Description</th><th>Status</th><th>Target Date</th><th>Comments</th><th>Actions</th>
-    </tr></thead><tbody></tbody></table>
+    </tr></thead><tbody></tbody></table></div>
   </div>
 
-  <div class="section"><h3>🟣 Hold</h3>
-    <table id="holdTable"><thead><tr>
+  <div class="section"><h3>🟣 Hold <span class="taskCount" id="holdCount">(0)</span></h3>
+    <div class="tableWrapper"><table id="holdTable"><thead><tr>
       <th>Date & Day</th><th>Description</th><th>Status</th><th>Target Date</th><th>Comments</th><th>Actions</th>
-    </tr></thead><tbody></tbody></table>
+    </tr></thead><tbody></tbody></table></div>
   </div>
+
 
   <div class="section" style="text-align:center;margin-top:10px;">
     <button onclick="exportTasks()">💾 Export Tasks</button>
@@ -284,27 +299,44 @@ const tasksCollection = db.collection("tasks");
 
 /* -------- Real-time listener: only attach once signed in -------- */
 let unsubscribeTasks = null;
+const TASK_TABLE_IDS = {'Pending':'pendingTable','WIP':'wipTable','FUP':'fupTable','Personal':'personalTable','Completed':'completedTable','Hold':'holdTable'};
+const TASK_COUNT_IDS = {'pendingTable':'pendingCount','wipTable':'wipCount','fupTable':'fupCount','personalTable':'personalCount','completedTable':'completedCount','holdTable':'holdCount'};
 
 function startTasksListener(){
   if(unsubscribeTasks) return; // already listening
-  unsubscribeTasks = tasksCollection.onSnapshot((snapshot) => {
+  document.getElementById('loadingIndicator').classList.remove('hidden');
+  unsubscribeTasks = tasksCollection.orderBy('target').onSnapshot((snapshot) => {
     // clear tables
-    ['pendingTable','wipTable','fupTable','personalTable','completedTable','holdTable'].forEach(id=>{
+    Object.values(TASK_TABLE_IDS).forEach(id=>{
       document.querySelector(`#${id} tbody`).innerHTML = '';
     });
 
-    // add each doc to appropriate table
+    // add each doc to appropriate table (already sorted by target date ascending)
     snapshot.forEach(doc => {
       const task = { id: doc.id, ...doc.data() };
       addTaskToTable(task);
     });
 
+    // update counts + empty-state rows
+    Object.entries(TASK_COUNT_IDS).forEach(([tableId, countId]) => {
+      const tbody = document.querySelector(`#${tableId} tbody`);
+      const countEl = document.getElementById(countId);
+      const rowCount = tbody.children.length;
+      if(countEl) countEl.textContent = `(${rowCount})`;
+      if(rowCount === 0){
+        const colCount = document.querySelector(`#${tableId} thead th`) ? document.querySelectorAll(`#${tableId} thead th`).length : 6;
+        tbody.innerHTML = `<tr class="emptyStateRow"><td colspan="${colCount}">No tasks in this section</td></tr>`;
+      }
+    });
+
     flashDueTasks();
+    document.getElementById('loadingIndicator').classList.add('hidden');
     document.getElementById("cloudSyncStatus").textContent = "☁️ Synced with Cloud";
     // clear message after 3s
     setTimeout(()=>{ document.getElementById("cloudSyncStatus").textContent = ""; }, 3000);
   }, (err) => {
     console.error('Firestore listener error', err);
+    document.getElementById('loadingIndicator').classList.add('hidden');
   });
 }
 
@@ -470,21 +502,30 @@ function deleteTask(btn){
 
 /* ------------- Clear All --------------- */
 function clearAll(){
-  const savedPass = localStorage.getItem('loginPass');
   if(!confirm('Are you sure? Click OK to confirm.')) return;
-  const enteredPass = prompt('Enter your password to confirm clearing all tasks:');
-  if(enteredPass !== savedPass){ alert('❌ Incorrect password. Aborting!'); return;}
-  if(!confirm('Double confirm: This will erase all tasks!')) return;
+  const enteredPass = prompt('Re-enter your login password to confirm clearing all tasks:');
+  if(!enteredPass){ return; }
 
-  // delete all docs in collection (simple approach)
-  tasksCollection.get().then(snapshot=>{
-    const batch = db.batch();
-    snapshot.forEach(doc => batch.delete(doc.ref));
-    return batch.commit();
-  }).then(()=>{
-    ['pendingTable','wipTable','fupTable','personalTable','completedTable','holdTable'].forEach(id=>document.querySelector(`#${id} tbody`).innerHTML='');
-    alert('✅ All tasks cleared!');
-  }).catch(err=>alert('Clear failed: ' + err));
+  const user = auth.currentUser;
+  if(!user){ alert('❌ Not signed in.'); return; }
+  const credential = firebase.auth.EmailAuthProvider.credential(user.email, enteredPass);
+
+  user.reauthenticateWithCredential(credential).then(() => {
+    if(!confirm('Double confirm: This will erase all tasks!')) return;
+
+    // delete all docs in collection (simple approach)
+    tasksCollection.get().then(snapshot=>{
+      const batch = db.batch();
+      snapshot.forEach(doc => batch.delete(doc.ref));
+      return batch.commit();
+    }).then(()=>{
+      Object.values(TASK_TABLE_IDS).forEach(id=>document.querySelector(`#${id} tbody`).innerHTML='');
+      alert('✅ All tasks cleared!');
+    }).catch(err=>alert('Clear failed: ' + err));
+  }).catch(err => {
+    alert('❌ Incorrect password. Aborting!');
+    console.error('Reauth failed', err);
+  });
 }
 
 /* ------------- Search --------------- */
@@ -541,10 +582,14 @@ function flashDueTasks(){
 
       if(!targetInput) return;
 
-      if(targetInput.value && targetInput.value <= todayStr){
-        targetInput.classList.add('due-date-due');
-      }else{
-        targetInput.classList.remove('due-date-due');
+      if(targetInput.value && targetInput.value < todayStr){
+        targetInput.classList.add('due-date-overdue');
+        targetInput.classList.remove('due-date-today');
+      } else if(targetInput.value === todayStr){
+        targetInput.classList.add('due-date-today');
+        targetInput.classList.remove('due-date-overdue');
+      } else {
+        targetInput.classList.remove('due-date-overdue','due-date-today');
       }
 
     });
