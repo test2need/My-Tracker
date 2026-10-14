@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V1.6 </title>
+<title>Murtaza's Tracker V1.7 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -11,148 +11,218 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <style>
-  body{font-family:'Segoe UI',sans-serif;background:#cce7ff;margin:0;padding:0;color:#333;}
-  .container{width:95%;max-width:1600px;margin:20px auto;background:#fff;border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.15);padding:15px 20px;animation:fadein 0.6s ease;}
+/* =====================================================================
+   THEME TOKENS
+   Every colour in the app comes from these variables.
+   Section tints (rows/headers/hover) are derived with color-mix(), so a
+   theme only needs to define ~25 values.
+   ===================================================================== */
+:root, body.theme-ice{
+  --bg:#e6f1fb; --card:#ffffff; --text:#1f2937; --muted:#5b6575;
+  --accent:#0b74c4; --accent-hover:#085a99; --on-accent:#ffffff;
+  --bar-bg:#d3e7f7; --line:#e3e8ee;
+  --input-bg:#ffffff; --input-border:#c4ccd6;
+  --ok:#1b7a43; --danger:#c62828; --danger-hover:#8e1c1c; --overlay:rgba(0,0,0,.5);
+  --scheme:light;
+  /* section accents */
+  --c-pending:#3a9d5d; --c-wip:#e08a2e; --c-fup:#3b7dd8;
+  --c-done:#8a8f98;    --c-hold:#9b59b6; --c-personal:#d4a72c;
+  /* due-date states: soft pulse, strong text contrast, non-colour cues (border style) */
+  --over-bg1:#f6c4c4; --over-bg2:#fde6e6; --over-fg:#7a1111; --over-ring:rgba(198,40,40,.45);
+  --today-bg1:#bfe6df; --today-bg2:#e0f4f0; --today-fg:#0b4f47; --today-ring:rgba(15,118,110,.45);
+}
+
+/* ---------- LIGHT THEMES ---------- */
+body.theme-paper{
+  --bg:#eceef2; --card:#ffffff; --text:#20242c; --muted:#5f6674;
+  --accent:#4f46e5; --accent-hover:#3d35c4;
+  --bar-bg:#dcdfe7; --line:#e4e7ee; --input-border:#c7cbd6;
+}
+body.theme-sage{
+  --bg:#e8efe4; --card:#fbfdf9; --text:#233026; --muted:#5b6b5f;
+  --accent:#4a7a58; --accent-hover:#386045;
+  --bar-bg:#d6e3d0; --line:#dfe8da; --input-border:#bccbb5;
+  --c-pending:#2f8f55; --c-wip:#d9822b; --c-fup:#3f7fb5; --c-done:#869088; --c-hold:#8e62a8; --c-personal:#c9a227;
+}
+body.theme-blush{
+  --bg:#f7ebe8; --card:#fffdfc; --text:#33262a; --muted:#7a6065;
+  --accent:#b0506a; --accent-hover:#8f3d54;
+  --bar-bg:#f1d9d5; --line:#f0e1de; --input-border:#dcc2c3;
+  --c-pending:#3a9a64; --c-wip:#d97a35; --c-fup:#4a7fc9; --c-done:#98898c; --c-hold:#a35ab0; --c-personal:#cfa23a;
+}
+body.theme-lilac{
+  --bg:#ece8f5; --card:#fdfcff; --text:#27223a; --muted:#645d82;
+  --accent:#6a4cb0; --accent-hover:#533a90;
+  --bar-bg:#ddd6ee; --line:#e6e1f2; --input-border:#c8c0e0;
+  --c-pending:#3a9a6a; --c-wip:#d9822e; --c-fup:#4a78d0; --c-done:#8d8aa0; --c-hold:#a04ec0; --c-personal:#cca62e;
+}
+
+/* ---------- NOC / DARK THEMES ----------
+   Red/green are deliberately dimmed (dark tinted fills + bright text)
+   so overdue/today markers read clearly without glare. */
+body.theme-noc-midnight,
+body.theme-noc-amber,
+body.theme-noc-graphite,
+body.theme-noc-violet,
+body.theme-noc-teal{
+  --scheme:dark; --overlay:rgba(0,0,0,.72);
+  --ok:#5fd6a0; --danger:#d64550; --danger-hover:#ef5b66;
+  --c-pending:#2fd0a0; --c-wip:#f59e0b; --c-fup:#4f9dff;
+  --c-done:#8b97a6;    --c-hold:#b78bff; --c-personal:#e5c84a;
+  --over-bg1:#5e2028; --over-bg2:#3f1a20; --over-fg:#ffd6d9; --over-ring:rgba(255,107,120,.55);
+  --today-bg1:#0f4c47; --today-bg2:#0c3633; --today-fg:#c3f6ee; --today-ring:rgba(45,212,191,.55);
+}
+body.theme-noc-midnight{
+  --bg:#060b16; --card:#0d1526; --text:#d6e2f5; --muted:#8aa0c0;
+  --accent:#22d3ee; --accent-hover:#67e8f9; --on-accent:#04202a;
+  --bar-bg:#0a1a33; --line:#1d2b47; --input-bg:#111c33; --input-border:#2a3b5e;
+}
+body.theme-noc-amber{
+  --bg:#0a0805; --card:#14100a; --text:#ffd9a0; --muted:#b38a52;
+  --accent:#ffb000; --accent-hover:#ffc73d; --on-accent:#1a1000;
+  --bar-bg:#1d1507; --line:#3a2b12; --input-bg:#1c150a; --input-border:#4a3716;
+  --c-wip:#ff7a2e; --c-hold:#c792ea; --c-personal:#f0d060;
+}
+body.theme-noc-graphite{
+  --bg:#101214; --card:#1a1d21; --text:#dde1e6; --muted:#9aa3ad;
+  --accent:#7cb7ff; --accent-hover:#a5cfff; --on-accent:#0a1a2e;
+  --bar-bg:#22262b; --line:#2e3339; --input-bg:#23272c; --input-border:#3a4048;
+}
+body.theme-noc-violet{
+  --bg:#0d0a1c; --card:#171230; --text:#e4defa; --muted:#a79bd3;
+  --accent:#a78bfa; --accent-hover:#c4b2ff; --on-accent:#140b36;
+  --bar-bg:#1f1845; --line:#2f2663; --input-bg:#1e1840; --input-border:#3d3278;
+  --c-hold:#f472b6;
+}
+body.theme-noc-teal{
+  --bg:#041413; --card:#0a2321; --text:#d2f3ee; --muted:#86bdb5;
+  --accent:#2dd4bf; --accent-hover:#5eead4; --on-accent:#02201d;
+  --bar-bg:#0d302d; --line:#14403c; --input-bg:#0f2d2a; --input-border:#1d5650;
+  --c-pending:#86e07a;
+}
+
+/* =====================================================================
+   BASE LAYOUT (unchanged structure, now token-driven)
+   ===================================================================== */
+  html{color-scheme:var(--scheme);}
+  body{font-family:'Segoe UI',sans-serif;background:var(--bg);margin:0;padding:0;color:var(--text);transition:background .3s ease,color .3s ease;}
+  a{color:var(--accent);}
+  .container{width:95%;max-width:1600px;margin:20px auto;background:var(--card);border-radius:15px;box-shadow:0 5px 20px rgba(0,0,0,0.15);padding:15px 20px;animation:fadein 0.6s ease;}
   @keyframes fadein{from{opacity:0;transform:scale(0.95);}to{opacity:1;transform:scale(1);} }
-  h2{text-align:center;color:#007BFF;margin:0;}
-  h3{background:#f0f8ff;padding:6px;border-radius:8px;color:#007BFF;margin-top:20px;}
-  input,select,button,textarea{font-size:14px;padding:4px;border-radius:6px;border:1px solid #ccc;}
+  h2{text-align:center;color:var(--accent);margin:0;}
+  h3{background:color-mix(in srgb,var(--accent) 10%,var(--card));padding:6px;border-radius:8px;color:var(--accent);margin-top:20px;}
+  input,select,button,textarea{font-size:14px;padding:4px;border-radius:6px;border:1px solid var(--input-border);}
+  input,select,textarea{background:var(--input-bg);color:var(--text);}
+  input::placeholder,textarea::placeholder{color:var(--muted);opacity:.8;}
+  select option{background:var(--input-bg);color:var(--text);}
   textarea,input[type="text"]{resize:none;transition:height 0.3s ease;width:100%; box-sizing:border-box;}
-  button{cursor:pointer;background:#007BFF;color:white;border:none;transition:0.3s;}
-  button:hover{background:#005fcc;}
+  button{cursor:pointer;background:var(--accent);color:var(--on-accent);border:none;transition:0.3s;}
+  button:hover{background:var(--accent-hover);}
   table{width:100%;border-collapse:collapse;margin-top:10px;}
-  th,td{border:1px solid #eee;padding:4px;text-align:left;vertical-align:middle;}
+  th,td{border:1px solid var(--line);padding:4px;text-align:left;vertical-align:middle;}
   td:nth-child(2), td:nth-child(5){width:45%;}
   td input[type="text"]{width:100%;box-sizing:border-box;}
   .hidden{display:none;}
   .tableWrapper{overflow-x:auto;-webkit-overflow-scrolling:touch;}
-  .taskCount{font-size:1em;font-weight:normal;color:#666;}
-  #loadingIndicator{text-align:center;color:#007BFF;font-weight:bold;padding:20px;}
-  .emptyStateRow td{text-align:center;color:#999;font-style:italic;padding:10px;}
-  input[type="text"].commentField{cursor:pointer;background:#fafcff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  #commentModalOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;}
+  .taskCount{font-size:1em;font-weight:normal;color:var(--muted);}
+  #loadingIndicator{text-align:center;color:var(--accent);font-weight:bold;padding:20px;}
+  .emptyStateRow td{text-align:center;color:var(--muted);font-style:italic;padding:10px;}
+  input[type="text"].commentField{cursor:pointer;background:color-mix(in srgb,var(--input-bg) 85%,var(--accent));white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  #commentModalOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:var(--overlay);z-index:1000;align-items:center;justify-content:center;}
   #commentModalOverlay.active{display:flex;}
-  #commentModalBox{background:#fff;width:90%;max-width:900px;height:80%;border-radius:10px;box-shadow:0 5px 25px rgba(0,0,0,0.3);display:flex;flex-direction:column;padding:15px 20px;box-sizing:border-box;}
+  #commentModalBox{background:var(--card);color:var(--text);width:90%;max-width:900px;height:80%;border-radius:10px;box-shadow:0 5px 25px rgba(0,0,0,0.3);display:flex;flex-direction:column;padding:15px 20px;box-sizing:border-box;}
   #commentModalBox h3{margin:0 0 10px 0;background:none;padding:0;}
   #commentModalTextarea{flex:1;width:100%;resize:none;font-size:15px;box-sizing:border-box;height:100%;}
-  #commentModalClose{align-self:flex-end;margin-bottom:8px;background:#dc3545;}
-  #commentModalClose:hover{background:#a71d2a;}
-  .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:#cce7ff;z-index:100;padding:8px 12px;border-bottom:2px solid #007BFF;}
+  #commentModalClose{align-self:flex-end;margin-bottom:8px;background:var(--danger);color:#fff;}
+  #commentModalClose:hover{background:var(--danger-hover);}
+  .topbar{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:var(--bar-bg);z-index:100;padding:8px 12px;border-bottom:2px solid var(--accent);}
   .topbar-left{flex:1;text-align:center;}
+  .topbar-left #dateTime{color:var(--text) !important;}
   .topbar-right{display:flex;align-items:center;gap:6px;}
   .section{margin-top:20px;}
   .action-btns button{margin-right:5px;font-size:12px;}
-  #searchInput{padding:4px;border-radius:6px;border:1px solid #ccc;}
-  #exportImportMsg{text-align:center;color:green;margin-top:10px;font-weight:bold;}
-  #cloudSyncStatus{text-align:center;color:green;margin-top:5px;font-weight:bold;}
-  #pendingTable tbody tr:nth-child(even){background-color:#e6f7e6;}
-  #pendingTable tbody tr:nth-child(odd){background-color:#d4efd4;}
-  #wipTable tbody tr:nth-child(even){background-color:#fff4e6;}
-  #wipTable tbody tr:nth-child(odd){background-color:#ffeacc;}
-  #fupTable tbody tr:nth-child(even){background-color:#cce0ff;}
-  #fupTable tbody tr:nth-child(odd){background-color:#b3d1ff;}
-  #completedTable tbody tr:nth-child(even){background-color:#f2f2f2;}
-  #completedTable tbody tr:nth-child(odd){background-color:#e0e0e0;}
-  #holdTable tbody tr:nth-child(even){background-color:#f9e6ff;}
-  #holdTable tbody tr:nth-child(odd){background-color:#e6ccf2;}
-  #personalTable tbody tr:nth-child(even){background-color:#fff8d6;}
-  #personalTable tbody tr:nth-child(odd){background-color:#fff1b8;}
-  #personalTable thead th{background-color:#ffefb0;color:#8a6d00;}
-  #pendingTable thead th{background-color:#ccefcf;color:#007B00;}
-  #wipTable thead th{background-color:#ffe6cc;color:#cc6600;}
-  #fupTable thead th{background-color:#cce0ff;color:#0047b3;}
-  #completedTable thead th{background-color:#e6e6e6;color:#666666;}
-  #holdTable thead th{background-color:#f2d9ff;color:#800080;}
-  #pendingTable tbody tr:hover,
-  #wipTable tbody tr:hover,
-  #fupTable tbody tr:hover,
-  #personalTable tbody tr:hover,
-  #completedTable tbody tr:hover,
-  #holdTable tbody tr:hover{
-    background-color:#d0ebff;
+  #searchInput{padding:4px;border-radius:6px;border:1px solid var(--input-border);}
+  #exportImportMsg{text-align:center;color:var(--ok);margin-top:10px;font-weight:bold;}
+  #cloudSyncStatus{text-align:center;color:var(--ok);margin-top:5px;font-weight:bold;}
+
+  /* ---------- Section tables: tints derived from each section's accent ---------- */
+  #pendingTable{--sec:var(--c-pending);}
+  #wipTable{--sec:var(--c-wip);}
+  #fupTable{--sec:var(--c-fup);}
+  #completedTable{--sec:var(--c-done);}
+  #holdTable{--sec:var(--c-hold);}
+  #personalTable{--sec:var(--c-personal);}
+  #pendingTable tbody tr:nth-child(even),#wipTable tbody tr:nth-child(even),#fupTable tbody tr:nth-child(even),
+  #completedTable tbody tr:nth-child(even),#holdTable tbody tr:nth-child(even),#personalTable tbody tr:nth-child(even){
+    background-color:color-mix(in srgb,var(--sec) 10%,var(--card));
+  }
+  #pendingTable tbody tr:nth-child(odd),#wipTable tbody tr:nth-child(odd),#fupTable tbody tr:nth-child(odd),
+  #completedTable tbody tr:nth-child(odd),#holdTable tbody tr:nth-child(odd),#personalTable tbody tr:nth-child(odd){
+    background-color:color-mix(in srgb,var(--sec) 20%,var(--card));
+  }
+  #pendingTable thead th,#wipTable thead th,#fupTable thead th,
+  #completedTable thead th,#holdTable thead th,#personalTable thead th{
+    background-color:color-mix(in srgb,var(--sec) 30%,var(--card));
+    color:color-mix(in srgb,var(--sec) 62%,var(--text));
+  }
+  #pendingTable tbody tr:hover,#wipTable tbody tr:hover,#fupTable tbody tr:hover,
+  #personalTable tbody tr:hover,#completedTable tbody tr:hover,#holdTable tbody tr:hover{
+    background-color:color-mix(in srgb,var(--sec) 32%,var(--card));
   }
 
-  /* Due-date warning */
-.due-date-overdue{
-  animation: dueFlash 1s infinite !important;
-}
-.due-date-today{
-  animation: dueFlashToday 1s infinite !important;
-  color:#fff !important;
-}
-@keyframes dueFlash{
-  0%, 100% { background-color:#ffb3b3; }
-  50% { background-color:#ffe0e0; }
-}
-@keyframes dueFlashToday{
-  0%, 100% { background-color:#4c9a4c; }
-  50% { background-color:#7fbf7f; }
-}
+  /* ---------- Due-date warnings ----------
+     Old behaviour: hard 1s red/green flash (fatiguing, poor contrast, and
+     red-vs-green is ambiguous for colour-blind users).
+     New behaviour: slow 2.6s ease-in-out pulse between two close tones,
+     theme-aware colours, readable text, and shape cues that work without
+     colour: overdue = solid border + bold, today = dashed border + bold.
+     Reduced-motion users get a static state. */
+  .due-date-overdue,
+  .due-date-today{
+    font-weight:600 !important;
+    border-width:2px !important;
+    animation-duration:2.6s !important;
+    animation-timing-function:ease-in-out !important;
+    animation-iteration-count:infinite !important;
+  }
+  .due-date-overdue{
+    color:var(--over-fg) !important;
+    border-color:var(--over-fg) !important;
+    border-style:solid !important;
+    background-color:var(--over-bg1) !important;
+    animation-name:duePulseOver !important;
+  }
+  .due-date-today{
+    color:var(--today-fg) !important;
+    border-color:var(--today-fg) !important;
+    border-style:dashed !important;
+    background-color:var(--today-bg1) !important;
+    animation-name:duePulseToday !important;
+  }
+  @keyframes duePulseOver{
+    0%,100%{background-color:var(--over-bg1);box-shadow:0 0 0 0 transparent;}
+    50%{background-color:var(--over-bg2);box-shadow:0 0 0 3px var(--over-ring);}
+  }
+  @keyframes duePulseToday{
+    0%,100%{background-color:var(--today-bg1);box-shadow:0 0 0 0 transparent;}
+    50%{background-color:var(--today-bg2);box-shadow:0 0 0 3px var(--today-ring);}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .due-date-overdue,.due-date-today{animation:none !important;}
+    *{transition:none !important;}
+  }
 
   /* Slightly reduced row height to make rows compact */
   td, th { padding:6px 8px; }
-  /* ================================
-   LIGHT THEMES
-   ================================ */
-
-body.theme-mint{background:#e8f7f0;}
-body.theme-mint .topbar{background:#d8f3e7;border-bottom-color:#43a97b;}
-body.theme-mint h2{color:#2e8b68;}
-body.theme-mint h3{background:#e1f4eb;color:#2e8b68;}
-
-body.theme-lavender{background:#f0ebfa;}
-body.theme-lavender .topbar{background:#e7def7;border-bottom-color:#8e6bbf;}
-body.theme-lavender h2{color:#7652a8;}
-body.theme-lavender h3{background:#eee7f9;color:#7652a8;}
-
-body.theme-peach{background:#fff0e6;}
-body.theme-peach .topbar{background:#ffe4d1;border-bottom-color:#e88b5a;}
-body.theme-peach h2{color:#d66b35;}
-body.theme-peach h3{background:#ffeadc;color:#d66b35;}
-
-body.theme-sky{background:#eaf6ff;}
-body.theme-sky .topbar{background:#d9efff;border-bottom-color:#5aa9df;}
-body.theme-sky h2{color:#3788bd;}
-body.theme-sky h3{background:#e1f2fc;color:#3788bd;}
-
-body.theme-cream{background:#fffbea;}
-body.theme-cream .topbar{background:#fff4c9;border-bottom-color:#d5b94b;}
-body.theme-cream h2{color:#a88b20;}
-body.theme-cream h3{background:#fff5d6;color:#a88b20;}
-
-body.theme-rose{background:#fff0f4;}
-body.theme-rose .topbar{background:#ffe0e9;border-bottom-color:#d97892;}
-body.theme-rose h2{color:#bd5c78;}
-body.theme-rose h3{background:#ffe8ee;color:#bd5c78;}
-
-body.theme-aqua{background:#e7f8f8;}
-body.theme-aqua .topbar{background:#d5f0f0;border-bottom-color:#49a6a6;}
-body.theme-aqua h2{color:#318888;}
-body.theme-aqua h3{background:#def3f3;color:#318888;}
-
-body.theme-lemon{background:#f9fbe8;}
-body.theme-lemon .topbar{background:#f1f5c9;border-bottom-color:#aab63d;}
-body.theme-lemon h2{color:#7f8c20;}
-body.theme-lemon h3{background:#f4f7d7;color:#7f8c20;}
-
-body.theme-sand{background:#f8f1e5;}
-body.theme-sand .topbar{background:#eee1c9;border-bottom-color:#b89562;}
-body.theme-sand h2{color:#8f7148;}
-body.theme-sand h3{background:#f3e8d4;color:#8f7148;}
-
-body.theme-slate{background:#eef1f3;}
-body.theme-slate .topbar{background:#dfe4e8;border-bottom-color:#7b8791;}
-body.theme-slate h2{color:#5f6c75;}
-body.theme-slate h3{background:#e5e9ec;color:#5f6c75;}
 
 #themeSelector{
   padding:4px 7px;
   border-radius:6px;
-  border:1px solid #ccc;
-  background:white;
+  border:1px solid var(--input-border);
+  background:var(--input-bg);
+  color:var(--text);
   cursor:pointer;
 }
-  
 </style>
 </head>
 <body>
@@ -177,18 +247,21 @@ body.theme-slate h3{background:#e5e9ec;color:#5f6c75;}
     <div class="topbar-right">
       <input type="text" id="searchInput" placeholder="Search tasks..." oninput="searchTasks()">
 
-      <select id="themeSelector" onchange="changeTheme(this.value)">
-        <option value="default">🔵 Blue</option>
-        <option value="mint">🌿 Mint</option>
-        <option value="lavender">💜 Lavender</option>
-        <option value="peach">🍑 Peach</option>
-        <option value="sky">☁️ Sky</option>
-        <option value="cream">🌼 Cream</option>
-        <option value="rose">🌸 Rose</option>
-        <option value="aqua">💧 Aqua</option>
-        <option value="lemon">🍋 Lemon</option>
-        <option value="sand">🏖️ Sand</option>
-        <option value="slate">🩶 Soft Gray</option>
+      <select id="themeSelector" onchange="changeTheme(this.value)" title="Theme">
+        <optgroup label="Light">
+          <option value="ice">🧊 Ice Blue</option>
+          <option value="paper">📄 Paper</option>
+          <option value="sage">🌿 Sage</option>
+          <option value="blush">🌸 Blush</option>
+          <option value="lilac">🪻 Lilac</option>
+        </optgroup>
+        <optgroup label="NOC / Dark">
+          <option value="noc-midnight">🛰️ NOC Midnight</option>
+          <option value="noc-amber">🟠 NOC Amber</option>
+          <option value="noc-graphite">⚙️ NOC Graphite</option>
+          <option value="noc-violet">🔮 NOC Violet</option>
+          <option value="noc-teal">🌊 NOC Teal</option>
+        </optgroup>
       </select>
 
       <button onclick="logout()">Logout</button>
@@ -622,27 +695,23 @@ updateDateTime();
 
 /* ------------- Init --------------- */
 /* ------------- Themes --------------- */
-function changeTheme(theme){
-  document.body.className = '';
-  
-  if(theme !== 'default'){
-    document.body.classList.add('theme-' + theme);
-  }
+const THEMES = ['ice','paper','sage','blush','lilac',
+                'noc-midnight','noc-amber','noc-graphite','noc-violet','noc-teal'];
+const DEFAULT_THEME = 'ice';
 
-  localStorage.setItem('trackerTheme', theme);
+function changeTheme(theme){
+  // Unknown/legacy saved values (e.g. old 'mint', 'default') fall back safely
+  if(!THEMES.includes(theme)) theme = DEFAULT_THEME;
+  document.body.className = 'theme-' + theme;
+  const selector = document.getElementById('themeSelector');
+  if(selector) selector.value = theme;
+  try{ localStorage.setItem('trackerTheme', theme); }catch(e){}
 }
 
 function loadTheme(){
-  const savedTheme = localStorage.getItem('trackerTheme') || 'default';
-  const selector = document.getElementById('themeSelector');
-
-  if(selector){
-    selector.value = savedTheme;
-  }
-
-  if(savedTheme !== 'default'){
-    document.body.classList.add('theme-' + savedTheme);
-  }
+  let saved = DEFAULT_THEME;
+  try{ saved = localStorage.getItem('trackerTheme') || DEFAULT_THEME; }catch(e){}
+  changeTheme(saved);
 }
 
 window.onload = function(){
