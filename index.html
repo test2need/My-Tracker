@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V1.7 </title>
+<title>Murtaza's Tracker V1.8 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -25,8 +25,7 @@
   --ok:#1b7a43; --danger:#c62828; --danger-hover:#8e1c1c; --overlay:rgba(0,0,0,.5);
   --scheme:light;
   /* section accents */
-  --c-pending:#3a9d5d; --c-wip:#e08a2e; --c-fup:#3b7dd8;
-  --c-done:#8a8f98;    --c-hold:#9b59b6; --c-personal:#d4a72c;
+  --c-pending:#14919b; --c-wip:#e58a3a; --c-fup:#2f6fd0; --c-done:#7b8794; --c-hold:#6b5bd1; --c-personal:#3aa0d9;
   /* due-date states: soft pulse, strong text contrast, non-colour cues (border style) */
   --over-bg1:#f6c4c4; --over-bg2:#fde6e6; --over-fg:#7a1111; --over-ring:rgba(198,40,40,.45);
   --today-bg1:#bfe6df; --today-bg2:#e0f4f0; --today-fg:#0b4f47; --today-ring:rgba(15,118,110,.45);
@@ -37,24 +36,25 @@ body.theme-paper{
   --bg:#eceef2; --card:#ffffff; --text:#20242c; --muted:#5f6674;
   --accent:#4f46e5; --accent-hover:#3d35c4;
   --bar-bg:#dcdfe7; --line:#e4e7ee; --input-border:#c7cbd6;
+  --c-pending:#3f8f8a; --c-wip:#c9733a; --c-fup:#4f46e5; --c-done:#7c8190; --c-hold:#8b5cf6; --c-personal:#b08d2f;
 }
 body.theme-sage{
   --bg:#e8efe4; --card:#fbfdf9; --text:#233026; --muted:#5b6b5f;
   --accent:#4a7a58; --accent-hover:#386045;
   --bar-bg:#d6e3d0; --line:#dfe8da; --input-border:#bccbb5;
-  --c-pending:#2f8f55; --c-wip:#d9822b; --c-fup:#3f7fb5; --c-done:#869088; --c-hold:#8e62a8; --c-personal:#c9a227;
+  --c-pending:#4a8f5c; --c-wip:#c98a3a; --c-fup:#4f8a8b; --c-done:#8a9488; --c-hold:#8a7a5a; --c-personal:#b5a23a;
 }
 body.theme-blush{
   --bg:#f7ebe8; --card:#fffdfc; --text:#33262a; --muted:#7a6065;
   --accent:#b0506a; --accent-hover:#8f3d54;
   --bar-bg:#f1d9d5; --line:#f0e1de; --input-border:#dcc2c3;
-  --c-pending:#3a9a64; --c-wip:#d97a35; --c-fup:#4a7fc9; --c-done:#98898c; --c-hold:#a35ab0; --c-personal:#cfa23a;
+  --c-pending:#c4687f; --c-wip:#e08f4f; --c-fup:#a04f8e; --c-done:#9a8a8d; --c-hold:#8c5fa8; --c-personal:#d4a24a;
 }
 body.theme-lilac{
   --bg:#ece8f5; --card:#fdfcff; --text:#27223a; --muted:#645d82;
   --accent:#6a4cb0; --accent-hover:#533a90;
   --bar-bg:#ddd6ee; --line:#e6e1f2; --input-border:#c8c0e0;
-  --c-pending:#3a9a6a; --c-wip:#d9822e; --c-fup:#4a78d0; --c-done:#8d8aa0; --c-hold:#a04ec0; --c-personal:#cca62e;
+  --c-pending:#7a5cc4; --c-wip:#d98a5a; --c-fup:#4f6fd0; --c-done:#8d8aa0; --c-hold:#b04fb0; --c-personal:#c9a03e;
 }
 
 /* ---------- NOC / DARK THEMES ----------
@@ -67,38 +67,39 @@ body.theme-noc-violet,
 body.theme-noc-teal{
   --scheme:dark; --overlay:rgba(0,0,0,.72);
   --ok:#5fd6a0; --danger:#d64550; --danger-hover:#ef5b66;
-  --c-pending:#2fd0a0; --c-wip:#f59e0b; --c-fup:#4f9dff;
-  --c-done:#8b97a6;    --c-hold:#b78bff; --c-personal:#e5c84a;
   --over-bg1:#5e2028; --over-bg2:#3f1a20; --over-fg:#ffd6d9; --over-ring:rgba(255,107,120,.55);
   --today-bg1:#0f4c47; --today-bg2:#0c3633; --today-fg:#c3f6ee; --today-ring:rgba(45,212,191,.55);
+  --c-pending:#2fd0a0; --c-wip:#f59e0b; --c-fup:#4f9dff; --c-done:#8b97a6; --c-hold:#b78bff; --c-personal:#e5c84a;
 }
 body.theme-noc-midnight{
   --bg:#060b16; --card:#0d1526; --text:#d6e2f5; --muted:#8aa0c0;
   --accent:#22d3ee; --accent-hover:#67e8f9; --on-accent:#04202a;
   --bar-bg:#0a1a33; --line:#1d2b47; --input-bg:#111c33; --input-border:#2a3b5e;
+  --c-pending:#22d3ee; --c-wip:#fbbf24; --c-fup:#6aa7ff; --c-done:#7d8aa3; --c-hold:#a78bfa; --c-personal:#5eead4;
 }
 body.theme-noc-amber{
   --bg:#0a0805; --card:#14100a; --text:#ffd9a0; --muted:#b38a52;
   --accent:#ffb000; --accent-hover:#ffc73d; --on-accent:#1a1000;
   --bar-bg:#1d1507; --line:#3a2b12; --input-bg:#1c150a; --input-border:#4a3716;
-  --c-wip:#ff7a2e; --c-hold:#c792ea; --c-personal:#f0d060;
+  --c-pending:#ffb000; --c-wip:#ff7a2e; --c-fup:#ffd166; --c-done:#a08a64; --c-hold:#e07a5f; --c-personal:#f4e285;
 }
 body.theme-noc-graphite{
   --bg:#101214; --card:#1a1d21; --text:#dde1e6; --muted:#9aa3ad;
   --accent:#7cb7ff; --accent-hover:#a5cfff; --on-accent:#0a1a2e;
   --bar-bg:#22262b; --line:#2e3339; --input-bg:#23272c; --input-border:#3a4048;
+  --c-pending:#7cb7ff; --c-wip:#f0a35e; --c-fup:#9aa7ff; --c-done:#8d96a0; --c-hold:#c4a1ff; --c-personal:#e0cf7a;
 }
 body.theme-noc-violet{
   --bg:#0d0a1c; --card:#171230; --text:#e4defa; --muted:#a79bd3;
   --accent:#a78bfa; --accent-hover:#c4b2ff; --on-accent:#140b36;
   --bar-bg:#1f1845; --line:#2f2663; --input-bg:#1e1840; --input-border:#3d3278;
-  --c-hold:#f472b6;
+  --c-pending:#a78bfa; --c-wip:#f472b6; --c-fup:#7aa2ff; --c-done:#9a93b8; --c-hold:#d38bff; --c-personal:#f0c674;
 }
 body.theme-noc-teal{
   --bg:#041413; --card:#0a2321; --text:#d2f3ee; --muted:#86bdb5;
   --accent:#2dd4bf; --accent-hover:#5eead4; --on-accent:#02201d;
   --bar-bg:#0d302d; --line:#14403c; --input-bg:#0f2d2a; --input-border:#1d5650;
-  --c-pending:#86e07a;
+  --c-pending:#2dd4bf; --c-wip:#f2b84b; --c-fup:#5aa9ff; --c-done:#7fa6a0; --c-hold:#9d8cff; --c-personal:#a3e36f;
 }
 
 /* =====================================================================
@@ -170,42 +171,27 @@ body.theme-noc-teal{
     background-color:color-mix(in srgb,var(--sec) 32%,var(--card));
   }
 
-  /* ---------- Due-date warnings ----------
-     Old behaviour: hard 1s red/green flash (fatiguing, poor contrast, and
-     red-vs-green is ambiguous for colour-blind users).
-     New behaviour: slow 2.6s ease-in-out pulse between two close tones,
-     theme-aware colours, readable text, and shape cues that work without
-     colour: overdue = solid border + bold, today = dashed border + bold.
-     Reduced-motion users get a static state. */
+  /* ---------- Due-date markers: static, no flashing ----------
+     Colour + shape cue (solid border = overdue, dashed = due today) so it
+     works without relying on red/green. Only Pending/WIP/FUP are marked. */
   .due-date-overdue,
   .due-date-today{
     font-weight:600 !important;
     border-width:2px !important;
-    animation-duration:2.6s !important;
-    animation-timing-function:ease-in-out !important;
-    animation-iteration-count:infinite !important;
   }
   .due-date-overdue{
     color:var(--over-fg) !important;
     border-color:var(--over-fg) !important;
     border-style:solid !important;
     background-color:var(--over-bg1) !important;
-    animation-name:duePulseOver !important;
+    box-shadow:0 0 0 2px var(--over-ring);
   }
   .due-date-today{
     color:var(--today-fg) !important;
     border-color:var(--today-fg) !important;
     border-style:dashed !important;
     background-color:var(--today-bg1) !important;
-    animation-name:duePulseToday !important;
-  }
-  @keyframes duePulseOver{
-    0%,100%{background-color:var(--over-bg1);box-shadow:0 0 0 0 transparent;}
-    50%{background-color:var(--over-bg2);box-shadow:0 0 0 3px var(--over-ring);}
-  }
-  @keyframes duePulseToday{
-    0%,100%{background-color:var(--today-bg1);box-shadow:0 0 0 0 transparent;}
-    50%{background-color:var(--today-bg2);box-shadow:0 0 0 3px var(--today-ring);}
+    box-shadow:0 0 0 2px var(--today-ring);
   }
   @media (prefers-reduced-motion:reduce){
     .due-date-overdue,.due-date-today{animation:none !important;}
@@ -223,6 +209,39 @@ body.theme-noc-teal{
   color:var(--text);
   cursor:pointer;
 }
+/* ---------- Focus mode (Today / Decide / Review) ---------- */
+#statusStrip{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:12px;}
+.chip{display:inline-block;padding:4px 11px;border-radius:999px;font-size:13px;background:color-mix(in srgb,var(--accent) 14%,var(--card));color:var(--text);border:1px solid color-mix(in srgb,var(--accent) 28%,var(--card));}
+.chip.alert{background:var(--over-bg2);color:var(--over-fg);border-color:var(--over-fg);}
+.chip.calm{background:color-mix(in srgb,var(--c-wip) 18%,var(--card));}
+.panel{border:1px solid var(--line);border-left:5px solid var(--accent);background:color-mix(in srgb,var(--accent) 6%,var(--card));border-radius:10px;padding:8px 14px 10px;margin-top:12px;}
+.panel.decide{border-left-color:var(--c-wip);background:color-mix(in srgb,var(--c-wip) 7%,var(--card));}
+.panel.review{border-left-color:var(--c-hold);background:color-mix(in srgb,var(--c-hold) 7%,var(--card));}
+.panel h4{margin:4px 0 6px;font-size:16px;color:var(--text);}
+.panel .muted,.muted{color:var(--muted);font-size:13px;font-weight:normal;}
+.fItem{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;padding:7px 0;border-top:1px dashed var(--line);}
+.fItem:first-of-type{border-top:none;}
+.fMain{flex:1 1 260px;min-width:200px;}
+.fDesc{font-weight:600;}
+.fMeta{font-size:12px;color:var(--muted);margin-top:2px;}
+.fBtns{display:flex;flex-wrap:wrap;gap:5px;align-items:center;}
+.badge{display:inline-block;padding:1px 7px;border-radius:6px;font-size:11px;background:color-mix(in srgb,var(--text) 12%,var(--card));color:var(--text);}
+.badge.stuck{background:var(--over-bg2);color:var(--over-fg);}
+button.mini{font-size:12px;padding:4px 9px;}
+button.mini.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);}
+button.mini.ghost:hover{background:color-mix(in srgb,var(--accent) 16%,var(--card));}
+button.mini.warn{background:var(--danger);color:#fff;}
+button.mini.warn:hover{background:var(--danger-hover);}
+.triDate{font-size:12px;padding:3px;}
+.pinBtn.on{outline:2px solid var(--accent);outline-offset:1px;}
+tr.dropped td:nth-child(2) input{text-decoration:line-through;opacity:.65;}
+.section h3.secHead{cursor:pointer;user-select:none;}
+.section h3.secHead::before{content:"\25BE  ";}
+.section h3.secHead.collapsed::before{content:"\25B8  ";}
+.section h3.secHead.collapsed + .tableWrapper{display:none;}
+body.searching .section h3.secHead.collapsed + .tableWrapper{display:block;}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--text);color:var(--card);padding:8px 16px;border-radius:8px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .25s;z-index:2000;}
+#toast.show{opacity:.95;}
 </style>
 </head>
 <body>
@@ -269,6 +288,14 @@ body.theme-noc-teal{
   </div>
 
   <div id="loadingIndicator" class="hidden">⏳ Loading tasks...</div>
+
+  <!-- FOCUS MODE -->
+  <div id="focusWrap">
+    <div id="statusStrip"></div>
+    <div id="todayPanel" class="panel"></div>
+    <div id="decidePanel" class="panel decide hidden"></div>
+    <div id="reviewPanel" class="panel review hidden"></div>
+  </div>
 
   <!-- ENTER TASK LINE -->
   <div class="section">
@@ -341,6 +368,8 @@ body.theme-noc-teal{
   </div>
 </div>
 
+<div id="toast"></div>
+
 <!-- Full-page comment editor -->
 <div id="commentModalOverlay" onclick="if(event.target===this) closeCommentModal();">
   <div id="commentModalBox">
@@ -385,8 +414,10 @@ function startTasksListener(){
     });
 
     // add each doc to appropriate table (already sorted by target date ascending)
+    TASKS = [];
     snapshot.forEach(doc => {
       const task = { id: doc.id, ...doc.data() };
+      TASKS.push(task);
       addTaskToTable(task);
     });
 
@@ -403,6 +434,9 @@ function startTasksListener(){
     });
 
     flashDueTasks();
+    applyCollapse();
+    renderFocus();
+    searchTasks();
     document.getElementById('loadingIndicator').classList.add('hidden');
     document.getElementById("cloudSyncStatus").textContent = "☁️ Synced with Cloud";
     // clear message after 3s
@@ -468,7 +502,8 @@ function addNewTask(){
   const comments=document.getElementById('newComments').dataset.fullcomment || '';
   if(!desc){alert('Description is mandatory'); return;}
   if(!target){alert('Target Date is mandatory'); return;}
-  const task={date,description:desc,status,target,comments};
+  const now=Date.now();
+  const task={date,description:desc,status,target,comments,createdAt:now,updatedAt:now,rescheduledCount:0};
   tasksCollection.add(task)
     .then(()=> {
       // clear inputs - snapshot will re-render table
@@ -486,6 +521,9 @@ function addTaskToTable(task){
   if(!tableBody) return;
   const row = tableBody.insertRow();
   row.dataset.id = task.id;
+  row.dataset.status = task.status || '';
+  row.dataset.target = task.target || '';
+  if(task.dropped) row.classList.add('dropped');
   row.innerHTML = `
     <td><input type="date" value="${task.date || ''}"></td>
     <td><input type="text" value="${escapeHtml(task.description || '')}"></td>
@@ -501,7 +539,7 @@ function addTaskToTable(task){
     </td>
     <td><input type="date" value="${task.target || ''}" required></td>
     <td><input type="text" class="commentField" readonly value="${escapeHtml(previewComment(task.comments))}" data-fullcomment="${escapeHtml(task.comments || '')}" onclick="openCommentModal(this)"></td>
-    <td class="action-btns"><button onclick="deleteTask(this)">❌</button></td>
+    <td class="action-btns"><button class="pinBtn${task.pinnedDate===getTodayStr()?' on':''}" onclick="togglePin('${task.id}')" title="Pin to Today">📌</button><button onclick="deleteTask(this)" title="Delete">❌</button></td>
   `;
 
   // wire changes to updateTask
@@ -567,8 +605,15 @@ function updateTask(row){
     description: inputs[1].value,
     status: inputs[2].value,
     target: inputs[3].value,
-    comments: (inputs[4].dataset.fullcomment !== undefined) ? inputs[4].dataset.fullcomment : inputs[4].value
+    comments: (inputs[4].dataset.fullcomment !== undefined) ? inputs[4].dataset.fullcomment : inputs[4].value,
+    updatedAt: Date.now()
   };
+  const oldStatus = row.dataset.status, oldTarget = row.dataset.target;
+  if(payload.status === 'Completed' && oldStatus !== 'Completed') payload.completedAt = Date.now();
+  if(payload.status !== 'Completed' && oldStatus === 'Completed'){ payload.completedAt = null; payload.dropped = false; }
+  if(payload.status !== 'Completed' && oldTarget && payload.target && payload.target > oldTarget){
+    payload.rescheduledCount = firebase.firestore.FieldValue.increment(1);
+  }
   tasksCollection.doc(id).update(payload).catch(err=>console.error('Update failed', err));
 }
 
@@ -612,6 +657,7 @@ function clearAll(){
 /* ------------- Search --------------- */
 function searchTasks(){
   const term = document.getElementById('searchInput').value.toLowerCase();
+  document.body.classList.toggle('searching', !!term);
   ['pendingTable','wipTable','fupTable','personalTable','completedTable','holdTable'].forEach(id=>{
     document.querySelectorAll(`#${id} tbody tr`).forEach(row=>{
       const text = Array.from(row.querySelectorAll('input,select')).map(e=>String(e.value).toLowerCase()).join(' ');
@@ -652,34 +698,199 @@ function importTasks(event){
   reader.readAsText(file);
 }
 
+/* ======================================================================
+   FOCUS MODE: Today list (capped), decisions on overdue, stale review.
+   Deadlines are self-set, so overdue work gets a decision instead of a flash.
+   Nothing here moves or deletes tasks automatically.
+   ====================================================================== */
+let TASKS = [];
+let lastDay = getTodayStr();
+let reviewOpen = false, showAllToday = false, showAllDecide = false;
+const ACTIVE = ['Pending','WIP','FUP'];
+const SEC_IDS = ['pendingTable','wipTable','fupTable','personalTable','completedTable','holdTable'];
+const DECIDE_SHOW = 3, REVIEW_SHOW = 5;
+
+function cfg(k,d){ try{ const v=parseInt(localStorage.getItem('trk_'+k),10); return (isNaN(v)||v<1)?d:v; }catch(e){ return d; } }
+function pad2(n){ return String(n).padStart(2,'0'); }
+function addDays(s,n){ const [y,m,d]=s.split('-').map(Number); const t=new Date(y,m-1,d+n); return t.getFullYear()+'-'+pad2(t.getMonth()+1)+'-'+pad2(t.getDate()); }
+function nextMonday(s){ const [y,m,d]=s.split('-').map(Number); const dow=new Date(y,m-1,d).getDay(); return addDays(s,((8-dow)%7)||7); }
+function daysBetween(a,b){ const p=x=>{const [y,m,d]=x.split('-').map(Number); return Date.UTC(y,m-1,d);}; return Math.round((p(b)-p(a))/864e5); }
+function ageDays(t){ const ts=t.updatedAt||Date.parse(t.date)||Date.now(); return Math.floor((Date.now()-ts)/864e5); }
+function inc(){ return firebase.firestore.FieldValue.increment(1); }
+function toast(msg){ const el=document.getElementById('toast'); if(!el) return; el.textContent=msg; el.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(()=>el.classList.remove('show'),2600); }
+function patch(id,fields){ return tasksCollection.doc(id).update(Object.assign({},fields,{updatedAt:Date.now()})).catch(err=>alert('Update failed: '+err)); }
+
+function computeFocus(){
+  const today=getTodayStr();
+  const act=TASKS.filter(t=>ACTIVE.includes(t.status));
+  const pinned=TASKS.filter(t=>t.pinnedDate===today && t.status!=='Completed' && t.status!=='Hold');
+  const pids=new Set(pinned.map(t=>t.id));
+  const dueToday=act.filter(t=>t.target===today && !pids.has(t.id));
+  const stuck=t=>(t.rescheduledCount||0)>=3;
+  const overdue=act.filter(t=>t.target && t.target<today && !pids.has(t.id))
+    .sort((a,b)=>(stuck(b)-stuck(a)) || (a.target<b.target?-1:1));
+  const od=new Set(overdue.map(t=>t.id));
+  const stale=TASKS.filter(t=>!od.has(t.id) && !pids.has(t.id) &&
+    (((t.status==='Pending'||t.status==='FUP') && ageDays(t)>=14) || (t.status==='Hold' && ageDays(t)>=30)));
+  const wk=Date.now()-7*864e5;
+  const doneWk=TASKS.filter(t=>t.status==='Completed' && t.completedAt && t.completedAt>=wk);
+  return { today, list:pinned.concat(dueToday), overdue, stale,
+           wip:TASKS.filter(t=>t.status==='WIP').length,
+           done:doneWk.filter(t=>!t.dropped).length, dropped:doneWk.filter(t=>t.dropped).length };
+}
+
+function bt(act,id,label,cls,extra){ return `<button class="mini ${cls||''}" data-act="${act}" data-id="${id}" ${extra||''}>${label}</button>`; }
+function metaHtml(t,today,untouched){
+  const m=[`<span class="badge">${escapeHtml(t.status)}</span>`];
+  if(t.target){ if(t.target<today) m.push(daysBetween(t.target,today)+'d overdue'); else if(t.target===today) m.push('due today'); else m.push('target '+t.target); }
+  if(untouched) m.push('untouched '+ageDays(t)+'d');
+  const rc=t.rescheduledCount||0;
+  if(rc>=3) m.push(`<span class="badge stuck">🔁 moved ${rc}× — do it, shrink it, or drop it</span>`);
+  else if(rc>0) m.push('moved '+rc+'×');
+  return m.join(' · ');
+}
+function itemHtml(t,kind,today){
+  const id=t.id; let b='';
+  if(kind==='today'){
+    b=bt('done',id,'✔ Done')+bt('move',id,'↷ Tomorrow','ghost','data-d="1"')+(t.pinnedDate===today?bt('unpin',id,'Unpin','ghost'):'');
+  } else if(kind==='decide'){
+    b=bt('pin',id,'📌 Do today')+bt('move',id,'+1d','ghost','data-d="1"')+bt('move',id,'+3d','ghost','data-d="3"')+
+      bt('move',id,'Next Mon','ghost','data-d="mon"')+`<input type="date" class="triDate" data-id="${id}" min="${today}" title="Pick a date">`+
+      ((t.rescheduledCount||0)>=3?bt('shrink',id,'✂ Shrink','ghost'):'')+bt('park',id,'⏸ Park','ghost')+bt('drop',id,'🗑 Drop','warn');
+  } else {
+    b=bt('keep',id,'Keep')+bt('pin',id,'📌 Do today','ghost')+bt('move',id,'+1 week','ghost','data-d="7"')+
+      (t.status!=='Hold'?bt('park',id,'⏸ Park','ghost'):'')+bt('drop',id,'🗑 Drop','warn');
+  }
+  return `<div class="fItem"><div class="fMain"><div class="fDesc">${escapeHtml(t.description||'')}</div><div class="fMeta">${metaHtml(t,today,kind==='review')}</div></div><div class="fBtns">${b}</div></div>`;
+}
+
+function renderFocus(){
+  const f=computeFocus(), cap=cfg('cap',5), lim=cfg('wip',5), today=f.today;
+  const st=secState(), allOpen=SEC_IDS.every(id=>st[id]);
+
+  // status strip (static, calm)
+  document.getElementById('statusStrip').innerHTML =
+    `<span class="chip">🎯 Today <b>${f.list.length}/${cap}</b></span>`+
+    `<span class="chip ${f.overdue.length?'alert':''}">⚠️ Decide <b>${f.overdue.length}</b></span>`+
+    `<span class="chip">✅ Done this week <b>${f.done}</b>${f.dropped?` <small>(+${f.dropped} dropped)</small>`:''}</span>`+
+    `<span class="chip ${f.wip>lim?'calm':''}">🔧 WIP <b>${f.wip}</b>${f.wip>lim?` · over ${lim}, lots in flight`:''}</span>`+
+    bt('review','',`🧹 Review stale (${f.stale.length})`,'ghost')+
+    bt('toggleAll','',allOpen?'▸ Collapse all':'▾ Expand all','ghost')+
+    bt('settings','','⚙ Limits','ghost');
+
+  // Today panel
+  const shownT=showAllToday?f.list:f.list.slice(0,cap), hidT=f.list.length-shownT.length;
+  document.getElementById('todayPanel').innerHTML =
+    `<h4>🎯 Today <span class="muted">${f.list.length}/${cap}</span>${f.list.length>cap?' <span class="badge stuck">over your limit — move something</span>':''}</h4>`+
+    (f.list.length?shownT.map(t=>itemHtml(t,'today',today)).join(''):`<p class="muted">Nothing planned. Pin up to ${cap} tasks with 📌 or “Do today”.</p>`)+
+    (hidT>0?bt('showToday','',`Show ${hidT} more`,'ghost'):'');
+
+  // Decision panel (overdue)
+  const dp=document.getElementById('decidePanel');
+  if(!f.overdue.length){ dp.classList.add('hidden'); dp.innerHTML=''; }
+  else{
+    dp.classList.remove('hidden');
+    const shownD=showAllDecide?f.overdue:f.overdue.slice(0,DECIDE_SHOW), hidD=f.overdue.length-shownD.length;
+    dp.innerHTML=`<h4>⚠️ Needs a decision <span class="muted">${f.overdue.length} overdue · your deadlines, your call: do it, move it, park it or drop it</span></h4>`+
+      shownD.map(t=>itemHtml(t,'decide',today)).join('')+
+      (hidD>0?bt('showDecide','',`Show ${hidD} more`,'ghost'):'')+
+      (f.overdue.length>=2?' '+bt('bulk','','Move all overdue to tomorrow','ghost'):'');
+  }
+
+  // Review panel (on demand only)
+  const rp=document.getElementById('reviewPanel');
+  if(!reviewOpen){ rp.classList.add('hidden'); rp.innerHTML=''; }
+  else{
+    rp.classList.remove('hidden');
+    rp.innerHTML=`<h4>🧹 Stale review <span class="muted">${f.stale.length} untouched (Pending/FUP 14d+, Hold 30d+) · nothing changes unless you choose</span></h4>`+
+      (f.stale.length?f.stale.slice(0,REVIEW_SHOW).map(t=>itemHtml(t,'review',today)).join('')+(f.stale.length>REVIEW_SHOW?`<p class="muted">${f.stale.length-REVIEW_SHOW} more after these</p>`:''):'<p class="muted">Nothing stale. 🎉</p>');
+  }
+}
+
+function pinTask(id){
+  const f=computeFocus(), cap=cfg('cap',5);
+  if(f.list.length>=cap && !confirm(`Today already has ${f.list.length} (limit ${cap}). Add anyway?`)) return;
+  patch(id,{pinnedDate:getTodayStr()}); toast('📌 Added to Today');
+}
+function togglePin(id){
+  const t=TASKS.find(x=>x.id===id); if(!t) return;
+  if(t.pinnedDate===getTodayStr()){ patch(id,{pinnedDate:''}); toast('Unpinned'); } else pinTask(id);
+}
+function moveTask(id,date){
+  const t=TASKS.find(x=>x.id===id); if(!t) return;
+  const rc=t.rescheduledCount||0;
+  if(rc>=3 && !confirm(`This has been moved ${rc} times already. Move it again?\n(Cancel, then do it, shrink it, or drop it.)`)) return;
+  patch(id,{target:date,rescheduledCount:inc(),pinnedDate:''}); toast('Moved to '+date);
+}
+
+document.getElementById('focusWrap').addEventListener('click',function(e){
+  const b=e.target.closest('[data-act]'); if(!b) return;
+  const a=b.dataset.act, id=b.dataset.id, today=getTodayStr();
+  switch(a){
+    case 'pin': pinTask(id); break;
+    case 'unpin': patch(id,{pinnedDate:''}); break;
+    case 'done': patch(id,{status:'Completed',dropped:false,completedAt:Date.now(),pinnedDate:''}); toast('Done ✔'); break;
+    case 'move': { const d=b.dataset.d; moveTask(id, d==='mon'?nextMonday(today):addDays(today,parseInt(d,10))); break; }
+    case 'park': patch(id,{status:'Hold',pinnedDate:''}); toast('Parked in Hold'); break;
+    case 'drop': patch(id,{status:'Completed',dropped:true,completedAt:Date.now(),pinnedDate:''}); toast('Dropped. It is in Completed if you change your mind'); break;
+    case 'keep': patch(id,{}); toast('Kept'); break;
+    case 'shrink': { const t=TASKS.find(x=>x.id===id); if(!t) break;
+      const nd=document.getElementById('newDesc'); nd.value='Next small step: '+(t.description||'');
+      nd.scrollIntoView({behavior:'smooth',block:'center'}); nd.focus(); toast('Edit this into a smaller task, then Add. Drop the original when done.'); break; }
+    case 'review': reviewOpen=!reviewOpen; renderFocus(); break;
+    case 'showToday': showAllToday=true; renderFocus(); break;
+    case 'showDecide': showAllDecide=true; renderFocus(); break;
+    case 'bulk': { const f=computeFocus(); const tom=addDays(today,1);
+      if(!confirm(`Move all ${f.overdue.length} overdue tasks to tomorrow?\nOnly use this occasionally, or the pile just moves with you.`)) break;
+      const batch=db.batch();
+      f.overdue.forEach(t=>batch.update(tasksCollection.doc(t.id),{target:tom,rescheduledCount:inc(),pinnedDate:'',updatedAt:Date.now()}));
+      batch.commit().then(()=>toast('Moved to tomorrow')).catch(err=>alert('Failed: '+err)); break; }
+    case 'toggleAll': { const st=secState(), open=SEC_IDS.every(i=>st[i]); SEC_IDS.forEach(i=>st[i]=!open); saveSec(st); applyCollapse(); renderFocus(); break; }
+    case 'settings': { const c=prompt('Max tasks for Today (default 5):',cfg('cap',5)); if(c!==null && parseInt(c,10)>0) localStorage.setItem('trk_cap',parseInt(c,10));
+      const w=prompt('WIP warning level (default 5):',cfg('wip',5)); if(w!==null && parseInt(w,10)>0) localStorage.setItem('trk_wip',parseInt(w,10));
+      renderFocus(); break; }
+  }
+});
+document.getElementById('focusWrap').addEventListener('change',function(e){
+  if(e.target.classList.contains('triDate') && e.target.value) moveTask(e.target.dataset.id, e.target.value);
+});
+
+/* Collapsible task sections (state remembered; only WIP open by default) */
+function secState(){ try{ return JSON.parse(localStorage.getItem('trk_sec')||'null') || {wipTable:true}; }catch(e){ return {wipTable:true}; } }
+function saveSec(st){ try{ localStorage.setItem('trk_sec',JSON.stringify(st)); }catch(e){} }
+function applyCollapse(){
+  const st=secState();
+  SEC_IDS.forEach(id=>{ const h=document.getElementById(id).closest('.section').querySelector('h3'); h.classList.add('secHead'); h.classList.toggle('collapsed',!st[id]); });
+}
+document.addEventListener('click',function(e){
+  const h=e.target.closest('h3.secHead'); if(!h) return;
+  const id=h.closest('.section').querySelector('table').id, st=secState();
+  st[id]=!st[id]; saveSec(st); applyCollapse(); renderFocus();
+});
+applyCollapse();
+
 /* ------------- Highlight due tasks --------------- */
 function flashDueTasks(){
-  const todayStr = new Date().toISOString().split('T')[0];
-
+  const todayStr = getTodayStr();   // local date (old code used UTC and flagged tasks a day early in the evening)
+  const markIds = ['pendingTable','wipTable','fupTable'];
   ['pendingTable','wipTable','fupTable','personalTable','holdTable'].forEach(id=>{
     document.querySelectorAll(`#${id} tbody tr`).forEach(row=>{
-
-      const targetInput = row.cells[3]?.querySelector('input[type="date"]');
-
-      if(!targetInput) return;
-
-      if(targetInput.value && targetInput.value < todayStr){
-        targetInput.classList.add('due-date-overdue');
-        targetInput.classList.remove('due-date-today');
-      } else if(targetInput.value === todayStr){
-        targetInput.classList.add('due-date-today');
-        targetInput.classList.remove('due-date-overdue');
-      } else {
-        targetInput.classList.remove('due-date-overdue','due-date-today');
-      }
-
+      const el = row.cells[3]?.querySelector('input[type="date"]');
+      if(!el) return;
+      el.classList.remove('due-date-overdue','due-date-today');
+      if(!markIds.includes(id) || !el.value) return;
+      if(el.value < todayStr) el.classList.add('due-date-overdue');
+      else if(el.value === todayStr) el.classList.add('due-date-today');
     });
   });
 }
 
 /* Run immediately after rendering and check every second */
 flashDueTasks();
-setInterval(flashDueTasks, 15000);
+setInterval(function(){
+  if(getTodayStr() !== lastDay){ lastDay = getTodayStr(); renderFocus(); }   // midnight rollover
+  flashDueTasks();
+}, 15000);
 
 /* ------------- Date & Time display --------------- */
 function updateDateTime(){
