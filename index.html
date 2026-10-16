@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V1.9 </title>
+<title>Murtaza's Tracker V1.10 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -203,7 +203,7 @@ body.theme-noc-teal{
 
   /* ---------- Due-date markers: static, no flashing ----------
      Colour + shape cue (solid border = overdue, dashed = due today) so it
-     works without relying on red/green. Only Pending/WIP/FUP are marked. */
+     works without relying on red/green. Pending/WIP/FUP/Personal are marked. */
   .due-date-overdue,
   .due-date-today{
     font-weight:600 !important;
@@ -486,6 +486,7 @@ function startTasksListener(){
     applyCollapse();
     renderFocus();
     searchTasks();
+    if(!snapshot.metadata.fromCache) purgeCompleted();
     document.getElementById('loadingIndicator').classList.add('hidden');
     document.getElementById("cloudSyncStatus").textContent = "☁️ Synced with Cloud";
     // clear message after 3s
@@ -932,10 +933,37 @@ document.addEventListener('click',function(e){
 });
 applyCollapse();
 
+
+/* ------------- Auto-delete Completed tasks after 20 days ---------------
+   Clock = completedAt. Completed tasks with no completedAt (old data, or set
+   by Siri) get stamped now, so they start their 20 days from today rather than
+   being deleted instantly. Dropped tasks live in Completed too, so they go too. */
+const PURGE_DAYS = 20;
+function purgeCompleted(){
+  const now = Date.now(), cutoff = now - PURGE_DAYS*864e5;
+  const toDelete = [], toStamp = [];
+  TASKS.forEach(t=>{
+    if(t.status !== 'Completed') return;
+    if(!t.completedAt) toStamp.push(t);
+    else if(t.completedAt < cutoff) toDelete.push(t);
+  });
+  if(!toDelete.length && !toStamp.length) return;
+  const writes = toDelete.map(t=>({del:true,id:t.id})).concat(toStamp.map(t=>({del:false,id:t.id})));
+  for(let i=0;i<writes.length;i+=400){
+    const batch = db.batch();
+    writes.slice(i,i+400).forEach(w=>{
+      const ref = tasksCollection.doc(w.id);
+      if(w.del) batch.delete(ref); else batch.update(ref,{completedAt:now});
+    });
+    batch.commit().catch(err=>console.error('Auto-clean failed', err));
+  }
+  if(toDelete.length) toast('Auto-deleted '+toDelete.length+' completed task'+(toDelete.length>1?'s':'')+' older than '+PURGE_DAYS+' days');
+}
+
 /* ------------- Highlight due tasks --------------- */
 function flashDueTasks(){
   const todayStr = getTodayStr();   // local date (old code used UTC and flagged tasks a day early in the evening)
-  const markIds = ['pendingTable','wipTable','fupTable'];
+  const markIds = ['pendingTable','wipTable','fupTable','personalTable'];
   ['pendingTable','wipTable','fupTable','personalTable','holdTable'].forEach(id=>{
     document.querySelectorAll(`#${id} tbody tr`).forEach(row=>{
       const el = row.cells[3]?.querySelector('input[type="date"]');
@@ -951,7 +979,7 @@ function flashDueTasks(){
 /* Run immediately after rendering and check every second */
 flashDueTasks();
 setInterval(function(){
-  if(getTodayStr() !== lastDay){ lastDay = getTodayStr(); renderFocus(); }   // midnight rollover
+  if(getTodayStr() !== lastDay){ lastDay = getTodayStr(); renderFocus(); purgeCompleted(); }   // midnight rollover
   flashDueTasks();
 }, 15000);
 
