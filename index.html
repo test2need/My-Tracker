@@ -964,7 +964,7 @@ function purgeCompleted(){
 /* ------------- Highlight due tasks --------------- */
 function flashDueTasks(){
   const todayStr = getTodayStr();   // local date (old code used UTC and flagged tasks a day early in the evening)
-  const markIds = ['pendingTable','wipTable','fupTable','personalTable'];
+  const markIds = ['pendingTable','wipTable','fupTable','personalTable','holdTable'];
   ['pendingTable','wipTable','fupTable','personalTable','holdTable'].forEach(id=>{
     document.querySelectorAll(`#${id} tbody tr`).forEach(row=>{
       const el = row.cells[3]?.querySelector('input[type="date"]');
