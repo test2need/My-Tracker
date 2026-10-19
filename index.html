@@ -781,7 +781,7 @@ function computeFocus(){
     .sort((a,b)=>(stuck(b)-stuck(a)) || (a.target<b.target?-1:1));
   const od=new Set(overdue.map(t=>t.id));
   const stale=TASKS.filter(t=>!od.has(t.id) && !pids.has(t.id) &&
-    (((t.status==='Pending'||t.status==='FUP') && ageDays(t)>=14);
+  ((t.status==='Pending'||t.status==='FUP') && ageDays(t)>=14));
   const n=new Date();
 const wk=new Date(n.getFullYear(), n.getMonth(), n.getDate()-((n.getDay()+6)%7)).getTime();
   const doneWk=TASKS.filter(t=>t.status==='Completed' && t.completedAt && t.completedAt>=wk);
@@ -810,7 +810,7 @@ function itemHtml(t,kind,today){
       ((t.rescheduledCount||0)>=3?bt('shrink',id,'✂ Shrink','ghost'):'')+bt('park',id,'⏸ Park','ghost')+bt('drop',id,'🗑 Drop','warn');
   } else {
     b=bt('keep',id,'Keep')+bt('pin',id,'📌 Do today','ghost')+bt('move',id,'+1 week','ghost','data-d="7"')+
-      (bt('park',id,'⏸ Park','ghost'):'')+bt('drop',id,'🗑 Drop','warn');
+      bt('park',id,'⏸ Park','ghost')+bt('drop',id,'🗑 Drop','warn');
   }
   return `<div class="fItem"><div class="fMain" data-goto="${id}" title="Open in its section"><div class="fDesc">${escapeHtml(t.description||'')}<span class="goIcon">↗</span></div><div class="fMeta">${metaHtml(t,today,kind==='review')}</div></div><div class="fBtns">${b}</div></div>`;
 }
