@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V1.10 </title>
+<title>Murtaza's Tracker V1.11 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -782,7 +782,8 @@ function computeFocus(){
   const od=new Set(overdue.map(t=>t.id));
   const stale=TASKS.filter(t=>!od.has(t.id) && !pids.has(t.id) &&
     (((t.status==='Pending'||t.status==='FUP') && ageDays(t)>=14) || (t.status==='Hold' && ageDays(t)>=30)));
-  const wk=Date.now()-7*864e5;
+  const n=new Date();
+const wk=new Date(n.getFullYear(), n.getMonth(), n.getDate()-((n.getDay()+6)%7)).getTime();
   const doneWk=TASKS.filter(t=>t.status==='Completed' && t.completedAt && t.completedAt>=wk);
   return { today, list:pinned.concat(dueToday), overdue, stale,
            wip:TASKS.filter(t=>t.status==='WIP').length,
