@@ -659,10 +659,12 @@ function updateTask(row){
     updatedAt: Date.now()
   };
   const oldStatus = row.dataset.status, oldTarget = row.dataset.target;
+  const old = TASKS.find(x => x.id === id);
   if(payload.status === 'Completed' && oldStatus !== 'Completed') payload.completedAt = Date.now();
   if(payload.status !== 'Completed' && oldStatus === 'Completed'){ payload.completedAt = null; payload.dropped = false; }
   if(payload.status !== 'Completed' && oldTarget && payload.target && payload.target > oldTarget){
-    payload.rescheduledCount = firebase.firestore.FieldValue.increment(1);
+    const progressed = old && (payload.comments !== (old.comments || '') || payload.status !== old.status);
+    payload.rescheduledCount = progressed ? 0 : firebase.firestore.FieldValue.increment(1);
   }
   tasksCollection.doc(id).update(payload).catch(err=>console.error('Update failed', err));
 }
