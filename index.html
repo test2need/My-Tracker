@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V1.11 </title>
+<title>Murtaza's Tracker V1.12 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -885,6 +885,13 @@ function gotoTask(id){
   const head=document.getElementById('stickyHead'), hh=head?head.offsetHeight:0;
   window.scrollTo({top:Math.max(0,row.getBoundingClientRect().top+window.pageYOffset-hh-14),behavior:'smooth'});
   row.classList.add('goHit'); clearTimeout(gotoTask._t); gotoTask._t=setTimeout(()=>row.classList.remove('goHit'),3200);
+	// NEW: open the comment editor only if the task has notes
+  clearTimeout(gotoTask._m);
+  gotoTask._m=setTimeout(()=>{
+    const r=document.querySelector('tr[data-id="'+id+'"]');
+    const c=r && r.querySelector('input.commentField');
+    if(c && (c.dataset.fullcomment||'').trim()) openCommentModal(c);
+  },500);
 }
 function focusClick(e){
   const g=e.target.closest('[data-goto]');
