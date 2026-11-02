@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Murtaza's Tracker V1.12 </title>
+<title>Murtaza's Tracker V1.13 </title>
 
 <!!-- Firebase Compat SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -279,6 +279,18 @@ body.searching .section h3.secHead.collapsed + .tableWrapper{display:block;}
 table td{transition:background-color .6s ease,box-shadow .6s ease;}
 tr.goHit td{background-color:color-mix(in srgb,var(--accent) 30%,var(--card)) !important;
   box-shadow:inset 0 2px 0 var(--accent),inset 0 -2px 0 var(--accent);}
+
+#remOverlay{display:none;position:fixed;inset:0;background:var(--overlay);z-index:1100;align-items:center;justify-content:center;}
+#remOverlay.active{display:flex;}
+#remBox{background:var(--card);color:var(--text);border-radius:14px;padding:22px;width:min(440px,92vw);box-shadow:0 12px 40px rgba(0,0,0,.35);}
+#remBox h3{margin:0 0 4px;}
+#remDesc{font-size:17px;font-weight:600;margin:10px 0 4px;word-break:break-word;}
+#remMeta{color:var(--muted);font-size:13px;margin-bottom:6px;}
+#remBox .remRow{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:10px;}
+#remBox button{padding:8px 12px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);cursor:pointer;}
+#remBox button.remPrimary{background:var(--accent);color:var(--on-accent);border-color:var(--accent);}
+#remBox input[type=time]{padding:6px;border-radius:8px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);}
+.action-btns .remTime{width:78px;font-size:11px;padding:2px;margin-right:5px;}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -427,7 +439,23 @@ tr.goHit td{background-color:color-mix(in srgb,var(--accent) 30%,var(--card)) !i
     <textarea id="commentModalTextarea"></textarea>
   </div>
 </div>
-
+<div id="remOverlay">
+  <div id="remBox">
+    <h3>⏰ Due today <span id="remCount" class="muted"></span></h3>
+    <div id="remDesc"></div>
+    <div id="remMeta"></div>
+    <div class="remRow">
+      <button id="remOk" class="remPrimary">✓ OK, got it</button>
+      <button id="remOkAll" style="display:none"></button>
+    </div>
+    <div class="remRow"><span>Snooze:</span>
+      <button data-snz="15">15 min</button><button data-snz="60">1 hour</button><button data-snz="180">3 hours</button>
+    </div>
+    <div class="remRow"><span>Or at</span><input type="time" id="remAt"><button id="remAtBtn">Remind me</button></div>
+    <div class="remRow"><span class="muted">Daily reminder time</span><input type="time" id="remDefault"></div>
+    <div class="remRow"><button id="remNotifyBtn" style="display:none">🔔 Enable desktop alerts</button></div>
+  </div>
+</div>
 <script>
 /* -----------------------------
    Firebase configuration
@@ -589,12 +617,16 @@ function addTaskToTable(task){
     </td>
     <td><input type="date" value="${task.target || ''}" required></td>
     <td><input type="text" class="commentField" readonly value="${escapeHtml(previewComment(task.comments))}" data-fullcomment="${escapeHtml(task.comments || '')}" onclick="openCommentModal(this)"></td>
-    <td class="action-btns"><button class="pinBtn${task.pinnedDate===getTodayStr()?' on':''}" onclick="togglePin('${task.id}')" title="Pin to Today">📌</button><button onclick="deleteTask(this)" title="Delete">❌</button></td>
+        <td class="action-btns"><input type="time" class="remTime" title="Reminder time (blank = daily default)" value="${task.remindTime || ''}"><button class="pinBtn${task.pinnedDate===getTodayStr()?' on':''}" onclick="togglePin('${task.id}')" title="Pin to Today">📌</button><button onclick="deleteTask(this)" title="Delete">❌</button></td>
   `;
 
   // wire changes to updateTask
-  row.querySelectorAll('input,select').forEach(el => {
+    row.querySelectorAll('input:not(.remTime),select').forEach(el => {
     el.addEventListener('change', ()=> updateTask(row));
+  });
+  const rt = row.querySelector('.remTime');
+  if(rt) rt.addEventListener('change', ()=> {
+    tasksCollection.doc(task.id).update({remindTime: rt.value || null}).catch(err=>console.error('Reminder time failed', err));
   });
 }
 
@@ -649,7 +681,7 @@ document.addEventListener('keydown', function(e){
 function updateTask(row){
   const id = row.dataset.id;
   if(!id) return;
-  const inputs = row.querySelectorAll('input,select');
+    const inputs = row.querySelectorAll('input:not(.remTime),select');
   const payload = {
     date: inputs[0].value,
     description: inputs[1].value,
@@ -885,7 +917,7 @@ function gotoTask(id){
   const head=document.getElementById('stickyHead'), hh=head?head.offsetHeight:0;
   window.scrollTo({top:Math.max(0,row.getBoundingClientRect().top+window.pageYOffset-hh-14),behavior:'smooth'});
   row.classList.add('goHit'); clearTimeout(gotoTask._t); gotoTask._t=setTimeout(()=>row.classList.remove('goHit'),3200);
-	// NEW: open the comment editor only if the task has notes
+// NEW: open the comment editor only if the task has notes
   clearTimeout(gotoTask._m);
   gotoTask._m=setTimeout(()=>{
     const r=document.querySelector('tr[data-id="'+id+'"]');
@@ -988,10 +1020,88 @@ function flashDueTasks(){
 
 /* Run immediately after rendering and check every second */
 flashDueTasks();
+  remCheck();
 setInterval(function(){
   if(getTodayStr() !== lastDay){ lastDay = getTodayStr(); renderFocus(); purgeCompleted(); }   // midnight rollover
   flashDueTasks();
 }, 15000);
+/* ---------- Due-date reminder popup ---------- */
+const REM_KEY='taskReminders', REM_TIME_KEY='remDefaultTime', REM_BASE_TITLE=document.title;
+let remCurrent=null;
+function remLoad(){ try{ return JSON.parse(localStorage.getItem(REM_KEY)||'{}'); }catch(e){ return {}; } }
+function remSave(o){ try{ localStorage.setItem(REM_KEY,JSON.stringify(o)); }catch(e){} }
+function remDefault(){ try{ return localStorage.getItem(REM_TIME_KEY)||'09:00'; }catch(e){ return '09:00'; } }
+function remDue(){
+  const now=new Date(), today=getTodayStr();
+  const hm=String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const st=remLoad();
+  return TASKS.filter(t=>{
+    if(t.target!==today || t.status==='Completed' || t.status==='Hold' || t.dropped) return false;
+    if(hm < (t.remindTime || remDefault())) return false;
+    const s=st[t.id]||{};
+    if(s.ack===t.target) return false;
+    if(s.until && now.getTime()<s.until) return false;
+    return true;
+  });
+}
+function remCheck(){
+  if(typeof firebase==='undefined' || !firebase.auth().currentUser) return;
+  const due=remDue();
+  document.title = due.length ? '('+due.length+') Due today · '+REM_BASE_TITLE : REM_BASE_TITLE;
+  if(!due.length) return;
+  if(document.getElementById('remOverlay').classList.contains('active')) return;
+  if(document.getElementById('commentModalOverlay').classList.contains('active')) return;
+  remShow(due[0], due.length);
+}
+function remShow(t,n){
+  remCurrent=t.id;
+  document.getElementById('remCount').textContent = n>1 ? '('+n+' waiting)' : '';
+  document.getElementById('remDesc').textContent = t.description||'';
+  document.getElementById('remMeta').textContent = (t.status||'')+' · due '+t.target;
+  const a=new Date(Date.now()+3600e3);
+  document.getElementById('remAt').value=String(a.getHours()).padStart(2,'0')+':'+String(a.getMinutes()).padStart(2,'0');
+  document.getElementById('remDefault').value=remDefault();
+  const all=document.getElementById('remOkAll');
+  all.style.display = n>1 ? '' : 'none'; all.textContent='✓ OK all ('+n+')';
+  document.getElementById('remNotifyBtn').style.display =
+    ('Notification' in window && Notification.permission==='default') ? '' : 'none';
+  document.getElementById('remOverlay').classList.add('active');
+  remNotify(t,n);
+}
+function remNotify(t,n){
+  if(!('Notification' in window) || Notification.permission!=='granted' || !document.hidden) return;
+  try{
+    const note=new Notification('⏰ Due today'+(n>1?' ('+n+' tasks)':''),{
+      body:(t.description||'').slice(0,120), tag:'task-reminder', requireInteraction:true
+    });
+    note.onclick=()=>{ window.focus(); note.close(); };
+  }catch(e){}
+}
+function remClose(){ document.getElementById('remOverlay').classList.remove('active'); remCurrent=null; setTimeout(remCheck,300); }
+function remSet(patch){ if(!remCurrent) return; const st=remLoad(); st[remCurrent]=Object.assign(st[remCurrent]||{},patch); remSave(st); }
+function remAck(){ const t=TASKS.find(x=>x.id===remCurrent); if(t) remSet({ack:t.target,until:0}); remClose(); }
+function remAckAll(){
+  const st=remLoad();
+  remDue().forEach(t=>{ st[t.id]=Object.assign(st[t.id]||{},{ack:t.target,until:0}); });
+  remSave(st); remClose();
+}
+function remSnooze(min){ remSet({until:Date.now()+min*60000}); remClose(); }
+function remAtTime(){
+  const v=document.getElementById('remAt').value; if(!v) return;
+  const p=v.split(':'), d=new Date(); d.setHours(+p[0],+p[1],0,0);
+  if(d.getTime()<=Date.now()){ toast('Pick a time later today'); return; }
+  remSet({until:d.getTime()}); remClose();
+}
+document.getElementById('remOk').onclick=remAck;
+document.getElementById('remOkAll').onclick=remAckAll;
+document.querySelectorAll('#remBox [data-snz]').forEach(b=>b.onclick=()=>remSnooze(+b.dataset.snz));
+document.getElementById('remAtBtn').onclick=remAtTime;
+document.getElementById('remDefault').onchange=e=>{ try{ localStorage.setItem(REM_TIME_KEY,e.target.value||'09:00'); }catch(_){} };
+document.getElementById('remNotifyBtn').onclick=()=>{
+  if(!('Notification' in window)) return;
+  Notification.requestPermission().then(()=>{ document.getElementById('remNotifyBtn').style.display='none'; });
+};
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) remCheck(); });
 
 /* ------------- Date & Time display --------------- */
 function updateDateTime(){
