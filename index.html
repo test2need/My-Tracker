@@ -1069,13 +1069,17 @@ function remShow(t,n){
   remNotify(t,n);
 }
 function remNotify(t,n){
-  if(!('Notification' in window) || Notification.permission!=='granted' || !document.hidden) return;
+  if(!('Notification' in window) || Notification.permission!=='granted'){
+    console.warn('Reminder notification skipped, permission:', window.Notification && Notification.permission); return;
+  }
+  if(!document.hidden && document.hasFocus()) return;
   try{
     const note=new Notification('⏰ Due today'+(n>1?' ('+n+' tasks)':''),{
-      body:(t.description||'').slice(0,120), tag:'task-reminder', requireInteraction:true
+      body:(t.description||'').slice(0,120), tag:'task-reminder', renotify:true, requireInteraction:true
     });
     note.onclick=()=>{ window.focus(); note.close(); };
-  }catch(e){}
+    note.onerror=e=>console.warn('Notification error', e);
+  }catch(e){ console.warn('Notification failed', e); }
 }
 function remClose(){ document.getElementById('remOverlay').classList.remove('active'); remCurrent=null; setTimeout(remCheck,300); }
 function remSet(patch){ if(!remCurrent) return; const st=remLoad(); st[remCurrent]=Object.assign(st[remCurrent]||{},patch); remSave(st); }
@@ -1101,8 +1105,12 @@ document.getElementById('remNotifyBtn').onclick=()=>{
   if(!('Notification' in window)) return;
   Notification.requestPermission().then(()=>{ document.getElementById('remNotifyBtn').style.display='none'; });
 };
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden) remCheck(); });
-
+document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){
+    const t=TASKS.find(x=>x.id===remCurrent);
+    if(t && document.getElementById('remOverlay').classList.contains('active')) remNotify(t, remDue().length||1);
+  } else remCheck();
+});
 /* ------------- Date & Time display --------------- */
 function updateDateTime(){
   const d=new Date();
